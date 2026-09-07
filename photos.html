@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>智慧新城公务用车管理平台 · 车辆照片档案</title>
+<style>
+  /* ============ 全局/壳层 ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --primary:#014DB2; --primary-deep:#001645; --primary-light:#0A5FD4;
+    --primary-soft:#E8EEF8; --primary-bg:#EFF6FF;
+    --text:#0A1628; --sub:#6B7280; --muted:#8A94A6; --faint:#9AA5B5;
+    --green:#10B981; --green-dark:#047857; --green-bg:#ECFDF5;
+    --amber:#F59E0B; --amber-dark:#B45309; --amber-bg:#FFFBEB;
+    --red:#DC2626; --red-dark:#B91C1C; --red-bg:#FEF2F2;
+    --indigo:#4F46E5; --indigo-bg:#EEF0FF;
+    --purple:#7C3AED; --purple-bg:#F3EEFF;
+    --bg:#F4F6FA; --card:#FFFFFF; --line:#EEF0F5; --line-2:#E5E9F0;
+    --sidebar-w:232px; --topbar-h:64px;
+  }
+  html,body{height:100%;}
+  body{font-family:"Sarasa Gothic SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;font-size:14px;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  .preloader{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#001645 0%,#0A4FB8 50%,#014DB2 100%);display:flex;align-items:center;justify-content:center;color:#fff;flex-direction:column;gap:16px;transition:opacity .35s;}
+  .preloader.gone{opacity:0;pointer-events:none;}
+  .preloader .ring{width:44px;height:44px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;}
+  .preloader .txt{font-size:13px;letter-spacing:2px;opacity:.8;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .admin{display:flex;height:100vh;min-width:1080px;}
+  .sidebar{width:var(--sidebar-w);flex-shrink:0;background:linear-gradient(180deg,#001645 0%,#012370 100%);color:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+  .sidebar::before{content:'';position:absolute;top:-120px;right:-100px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.16) 0%,rgba(16,185,129,0) 70%);}
+  .sidebar > *{position:relative;z-index:1;}
+  .sb-logo{padding:22px 22px 16px;display:flex;align-items:center;gap:12px;}
+  .sb-logo .ico{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#0A5FD4,#014DB2);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(10,95,212,.32);}
+  .sb-logo .t1{font-size:15px;font-weight:800;letter-spacing:.5px;}
+  .sb-logo .t2{font-size:10px;color:rgba(255,255,255,.55);margin-top:3px;letter-spacing:1.5px;}
+  .sb-nav{flex:1;padding:8px 12px 12px;overflow-y:auto;scrollbar-width:thin;}
+  .sb-nav::-webkit-scrollbar{width:4px;}
+  .sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px;}
+  .nav-group{margin-bottom:14px;}
+  .nav-group .gt{font-size:10.5px;color:rgba(255,255,255,.4);letter-spacing:2px;padding:6px 12px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.78);transition:background .15s,color .15s;margin-bottom:2px;}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .nav-item.active{background:linear-gradient(135deg,rgba(10,95,212,.95),rgba(1,77,178,.95));color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(10,95,212,.32);}
+  .nav-item .ic{width:16px;height:16px;flex-shrink:0;opacity:.85;}
+  .nav-item.active .ic{opacity:1;}
+  .nav-item.disabled{opacity:.35;cursor:not-allowed;}
+  .nav-item.disabled:hover{background:transparent;color:rgba(255,255,255,.78);}
+  .sb-user{padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;}
+  .sb-user .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0A5FD4,#014DB2);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .sb-user .info{flex:1;min-width:0;}
+  .sb-user .info .nm{font-size:13px;font-weight:700;}
+  .sb-user .info .rl{font-size:10.5px;color:rgba(255,255,255,.5);margin-top:2px;}
+  .sb-user .out{padding:5px 10px;border:1px solid rgba(255,255,255,.18);border-radius:6px;background:transparent;color:#fff;font-size:11px;cursor:pointer;}
+  .sb-user .out:hover{background:rgba(255,255,255,.08);}
+
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{height:var(--topbar-h);background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;}
+  .crumbs{font-size:13px;color:var(--muted);}
+  .crumbs .home{color:var(--primary);font-weight:600;cursor:pointer;}
+  .crumbs .sep{margin:0 6px;color:#C2C9D4;}
+  .crumbs .cur{color:var(--text);font-weight:700;}
+  .top-right{display:flex;align-items:center;gap:14px;}
+  .clock{font-family:"Cascadia Code","Consolas",monospace;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px;}
+  .clock .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(16,185,129,.18);}
+  .top-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--line-2);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--sub);position:relative;}
+  .top-icon-btn .dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);}
+  .content{flex:1;overflow-y:auto;padding:22px 24px 40px;scrollbar-width:thin;}
+  .content::-webkit-scrollbar{width:6px;}
+  .content::-webkit-scrollbar-thumb{background:#D7DDE6;border-radius:3px;}
+
+  .page-hero{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;}
+  .page-hero .h-t{font-size:20px;font-weight:800;color:var(--text);letter-spacing:.5px;}
+  .page-hero .h-s{font-size:12.5px;color:var(--muted);margin-top:6px;}
+  .card{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(15,40,80,.04);}
+
+  /* KPI */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+  .kpi{position:relative;padding:18px 18px;border-radius:14px;background:#fff;overflow:hidden;border:1px solid var(--line);}
+  .kpi::after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;opacity:.06;background:currentColor;}
+  .kpi .ic-deco{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.04);color:currentColor;}
+  .kpi .num{font-size:26px;font-weight:800;color:var(--text);margin-top:14px;letter-spacing:-.5px;}
+  .kpi .num .unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:4px;}
+  .kpi .lbl{font-size:13px;font-weight:700;color:var(--text);margin-top:2px;}
+  .kpi .sub{font-size:11.5px;color:var(--muted);margin-top:4px;}
+  .kpi.blue{color:var(--primary);}
+  .kpi.blue .num,.kpi.blue .lbl{color:var(--primary-deep);}
+  .kpi.amber{color:var(--amber-dark);}
+  .kpi.amber .num,.kpi.amber .lbl{color:var(--amber-dark);}
+  .kpi.green{color:var(--green-dark);}
+  .kpi.green .num,.kpi.green .lbl{color:var(--green-dark);}
+  .kpi.red{color:var(--red-dark);}
+  .kpi.red .num,.kpi.red .lbl{color:var(--red-dark);}
+
+  /* 筛选栏 */
+  .filter-card{padding:14px 18px;margin-bottom:14px;}
+  .filter-row{display:grid;grid-template-columns:1.5fr 1.2fr 1.2fr auto;gap:12px;align-items:end;}
+  .f-item{display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .f-item.grow{min-width:140px;}
+  .f-item label{font-size:11.5px;color:var(--sub);font-weight:600;letter-spacing:.3px;}
+  .f-input{height:36px;padding:0 12px;border-radius:9px;outline:none;border:1.5px solid var(--line-2);background:#F8FAFD;color:var(--text);font-size:13px;font-family:inherit;transition:border-color .2s,background .2s,box-shadow .2s;width:100%;min-width:0;}
+  .f-input:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(1,77,178,.10);}
+  .f-input::placeholder{color:#B4BDCC;}
+  select.f-input{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+  .btn-ghost{height:36px;padding:0 14px;border-radius:9px;border:1.5px solid var(--line-2);background:#fff;color:var(--sub);font-size:12.5px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s;}
+  .btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
+
+  /* 车辆卡片 */
+  .photo-vehicle-grid{display:flex;flex-direction:column;gap:18px;}
+  .veh-photo-card{background:#fff;border-radius:14px;border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,40,80,.04);overflow:hidden;}
+  .vp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(180deg,#F8FBFF 0%,#fff 100%);border-bottom:1px solid var(--line);}
+  .vp-head .vp-plate{font-family:"Cascadia Code",Consolas,monospace;font-size:14px;font-weight:800;color:#0A1628;background:#0A1628;color:#fff;padding:5px 11px;border-radius:6px;display:inline-block;letter-spacing:1.2px;}
+  .vp-head .vp-info{font-size:12.5px;color:var(--sub);margin-top:8px;}
+  .vp-head .vp-info b{color:var(--text);font-weight:700;margin-right:6px;}
+  .vp-head .vp-count{font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-bg);border-radius:100px;padding:5px 13px;}
+  .vp-head .vp-count.zero{color:var(--muted);background:#F2F4F8;}
+
+  /* unit 列表 */
+  .unit-list{display:flex;flex-direction:column;}
+  .unit-card{padding:18px 20px;border-top:1px dashed var(--line-2);}
+  .unit-card:first-child{border-top:none;}
+  .unit-meta{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+  .unit-meta .um-side{display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:#F7F9FC;border:1px solid var(--line);border-radius:9px;padding:8px 11px;}
+  .unit-meta .um-side.cur{background:var(--primary-bg);border-color:#C9DCF6;}
+  .unit-meta .um-side .tag{font-size:10.5px;font-weight:700;color:var(--sub);background:#fff;border:1px solid var(--line-2);border-radius:5px;padding:2px 7px;letter-spacing:.5px;white-space:nowrap;}
+  .unit-meta .um-side.cur .tag{background:#fff;color:var(--primary);border-color:#BFD8F6;}
+  .unit-meta .um-no{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;font-weight:700;color:var(--primary-deep);background:#fff;border:1px solid var(--line-2);padding:2px 7px;border-radius:5px;white-space:nowrap;}
+  .unit-meta .um-date{font-weight:700;color:var(--text);font-size:12.5px;white-space:nowrap;}
+  .unit-meta .um-driver{font-size:11.5px;color:var(--sub);margin-left:auto;white-space:nowrap;}
+  .unit-meta .um-driver b{color:var(--text);font-weight:700;}
+  .unit-meta .um-flag{font-size:10.5px;font-weight:800;border-radius:100px;padding:2px 8px;white-space:nowrap;}
+  .unit-meta .um-flag.ok{color:var(--green-dark);background:var(--green-bg);border:1px solid #A7F3D0;}
+  .unit-meta .um-flag.bad{color:var(--red-dark);background:var(--red-bg);border:1px solid #FECACA;}
+  .um-arrow{color:var(--muted);font-size:16px;font-weight:700;flex-shrink:0;}
+
+  /* 对比组 */
+  .compare-group{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .compare-pair{background:#FAFBFD;border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .cp-title{font-size:12.5px;font-weight:800;color:var(--sub);margin-bottom:10px;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
+  .cp-title .step{background:var(--primary);color:#fff;font-size:10.5px;font-weight:800;border-radius:5px;padding:2px 7px;letter-spacing:.5px;}
+  .cp-title .desc{font-size:11px;color:var(--muted);font-weight:500;}
+  .cp-photos{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:center;}
+  .cp-photo{position:relative;border-radius:9px;overflow:hidden;cursor:zoom-in;border:1.5px solid var(--line);background:#F4F6FA;aspect-ratio:4/3;}
+  .cp-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cp-photo .cp-stamp{position:absolute;left:6px;top:6px;background:rgba(10,22,40,.72);color:#fff;font-size:10px;font-weight:700;border-radius:4px;padding:2px 6px;letter-spacing:.5px;}
+  .cp-photo.cur .cp-stamp{background:var(--primary);}
+  .cp-photo .cp-result{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:800;border-radius:100px;padding:2px 9px;}
+  .cp-photo .cp-result.ok{color:var(--green-dark);background:rgba(236,253,245,.95);}
+  .cp-photo .cp-result.bad{color:var(--red-dark);background:rgba(254,242,242,.95);border:1px solid #FECACA;}
+  .cp-arrow{font-size:18px;color:var(--muted);font-weight:700;text-align:center;}
+
+  .cp-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-2);}
+  .cp-foot .when{font-size:11.5px;color:var(--sub);}
+  .cp-foot .when b{color:var(--text);font-weight:700;font-family:"Cascadia Code",Consolas,monospace;}
+  .cp-foot .pos{font-size:11px;color:var(--muted);}
+
+  /* 空 */
+  .empty-state{padding:48px 24px;text-align:center;color:var(--muted);background:#fff;border-radius:14px;border:1px dashed var(--line-2);}
+  .empty-state .empty-t{font-size:13.5px;font-weight:600;margin-top:10px;color:var(--sub);}
+  .empty-state .empty-s{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* 详情/大图 */
+  .lb-mask{position:fixed;inset:0;z-index:10000;background:rgba(10,22,40,.86);display:none;align-items:center;justify-content:center;}
+  .lb-mask.show{display:flex;flex-direction:column;}
+  .lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:32px;max-width:1180px;width:92%;max-height:88vh;}
+  .lb-cell{background:#fff;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .lb-cell .lb-ht{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);}
+  .lb-cell .lb-ht .nm{font-weight:800;color:var(--text);font-size:13.5px;}
+  .lb-cell .lb-ht .no{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-bg);padding:2px 8px;border-radius:5px;}
+  .lb-cell .lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:#0A1628;min-height:240px;}
+  .lb-cell .lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;}
+  .lb-cell .lb-ft{padding:10px 16px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);display:flex;justify-content:space-between;}
+  .lb-cell .lb-ft .res{font-weight:800;}
+  .lb-cell .lb-ft .res.ok{color:var(--green-dark);}
+  .lb-cell .lb-ft .res.bad{color:var(--red-dark);}
+  .lb-cap{padding:14px 32px 0;color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px;text-align:center;}
+  .lb-close{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .lb-close:hover{background:rgba(255,255,255,.25);}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:rgba(10,22,40,.92);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25;z-index:10001;pointer-events:none;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+  <div class="preloader" id="preloader"><div class="ring"></div><div class="txt">LOADING…</div></div>
+  <div class="admin">
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 11l1.5-4a3 3 0 012.8-2h7.4a3 3 0 012.8 2L21 11M5 11h14M5 11v6h2m12-6v6h-2m-10 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm12 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="t1">智慧新城公务用车</div><div class="t2">ADMIN CONSOLE</div></div>
+      </div>
+      <nav class="sb-nav">
+        <div class="nav-group">
+          <div class="gt">运营</div>
+          <div class="nav-item" onclick="go('index.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>工作台</span></div>
+          <div class="nav-item" onclick="go('dispatch.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>派单</span></div>
+          <div class="nav-item" onclick="go('attendance.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>出勤</span></div>
+          <div class="nav-item" onclick="go('worklog.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M5 4h11l3 3v13H5V4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>工作记录</span></div>
+        </div>
+        <div class="nav-group">
+          <div class="gt">资源</div>
+          <div class="nav-item" onclick="go('vehicles.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M5 11l1.5-4a3 3 0 012.8-2h7.4a3 3 0 012.8 2L21 11v6h-2a1.5 1.5 0 11-3 0H8a1.5 1.5 0 11-3 0H5v-6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>车辆</span></div>
+          <div class="nav-item" onclick="go('drivers.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M5 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>驾驶员</span></div>
+          <div class="nav-item" onclick="go('fuel.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 21V5a2 2 0 012-2h7a2 2 0 012 2v16M4 21h11M4 21v-5h11v5M14 9h3a2 2 0 012 2v3a2 2 0 002 2v0" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg><span>加油记录</span></div>
+          <div class="nav-item" onclick="go('maintain.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4l-6 6a2 2 0 102.8 2.8l6-6a4 4 0 005.4-5.4l-2.5 2.5-2.4-2.4 2.5-2.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>维修保养</span></div>
+        </div>
+        <div class="nav-group">
+          <div class="gt">合规</div>
+          <div class="nav-item" onclick="go('warning.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>系统预警</span></div>
+          <div class="nav-item active"><svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="9" cy="11" r="1.8" stroke="currentColor" stroke-width="1.7"/><path d="M21 17l-5-5-7 7" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>车辆照片档案</span></div>
+          <div class="nav-item" onclick="toast('异常档案暂未开放')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 8v5M12 16v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/></svg><span>异常档案</span></div>
+        </div>
+        <div class="nav-group">
+          <div class="gt">系统</div>
+          <div class="nav-item disabled"><svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>系统设置</span></div>
+        </div>
+      </nav>
+      <div class="sb-user">
+        <div class="av">A</div>
+        <div class="info"><div class="nm" id="userName">admin</div><div class="rl">超级管理员</div></div>
+        <button class="out" onclick="logout()">登出</button>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="crumbs">
+          <span class="home" onclick="go('index.html')">合规</span><span class="sep">/</span><span class="cur">车辆照片档案</span>
+        </div>
+        <div class="top-right">
+          <div class="clock"><span class="pulse"></span><span id="clockText">--:--:--</span></div>
+          <button class="top-icon-btn" onclick="toast('暂无新通知')" title="通知">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 1112 0c0 7 3 7 3 9H3c0-2 3-2 3-9zM10 21a2 2 0 004 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="dot"></span>
+          </button>
+        </div>
+      </header>
+      <section class="content">
+        <div class="page-hero">
+          <div>
+            <div class="h-t">车辆照片档案</div>
+            <div class="h-s">同车相邻两次工作记录的接车 / 还车 360°环视检查照片两两对比，共 4 张，留档核验车况</div>
+          </div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi blue">
+            <div class="ic-deco"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="9" cy="11" r="1.8" stroke="currentColor" stroke-width="1.7"/><path d="M21 17l-5-5-7 7" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+            <div class="num"><span id="kpiCars">0</span><span class="unit">辆</span></div>
+            <div class="lbl">覆盖车辆</div>
+            <div class="sub">有工作记录的车牌数</div>
+          </div>
+          <div class="kpi amber">
+            <div class="ic-deco"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8 4v4M16 4v4M8 16v4M16 16v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+            <div class="num"><span id="kpiUnits">0</span><span class="unit">组</span></div>
+            <div class="lbl">对比单元</div>
+            <div class="sub">同车相邻工作记录对</div>
+          </div>
+          <div class="kpi green">
+            <div class="ic-deco"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.7"/></svg></div>
+            <div class="num"><span id="kpiTrips">0</span><span class="unit">条</span></div>
+            <div class="lbl">工作记录</div>
+            <div class="sub">涉及的工作记录总数</div>
+          </div>
+          <div class="kpi red">
+            <div class="ic-deco"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+            <div class="num"><span id="kpiAbn">0</span><span class="unit">条</span></div>
+            <div class="lbl">异常工作记录</div>
+            <div class="sub">任一环节异常</div>
+          </div>
+        </div>
+
+        <div class="card filter-card">
+          <div class="filter-row">
+            <div class="f-item grow">
+              <label>关键词</label>
+              <input id="fKeyword" class="f-input" type="text" placeholder="车牌 / 品牌型号 / 部门" />
+            </div>
+            <div class="f-item">
+              <label>车辆</label>
+              <select id="fPlate" class="f-input"><option value="">全部车辆</option></select>
+            </div>
+            <div class="f-item">
+              <label>检查结果</label>
+              <select id="fResult" class="f-input">
+                <option value="">全部</option>
+                <option value="abn">含异常（任一环节）</option>
+                <option value="ok">全程正常</option>
+              </select>
+            </div>
+            <button class="btn-ghost" onclick="resetFilter()">重 置</button>
+          </div>
+        </div>
+
+        <div id="photoContainer" class="photo-vehicle-grid"></div>
+        <div id="emptyBox" class="empty-state" style="display:none">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#D1D5DB" stroke-width="1.4"/><path d="M8 13l3-3 5 5" stroke="#D1D5DB" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          <div class="empty-t">当前筛选条件下没有车辆</div>
+          <div class="empty-s">清空筛选条件或更换关键词</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 大图预览：左右两栏 接车对比 + 还车对比 -->
+  <div class="lb-mask" id="lbMask" onclick="closeLb()">
+    <button class="lb-close" onclick="event.stopPropagation();closeLb()" title="关闭">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="lb-grid" id="lbGrid"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="trips-data.js"></script>
+  <script>
+
+  /* ============ 登录态校验 ============ */
+  if (localStorage.getItem('zp_admin_logged') !== '1') { location.replace('login.html'); }
+  var ACCOUNT = localStorage.getItem('zp_admin_account') || 'admin';
+  document.getElementById('userName').textContent = ACCOUNT;
+
+  /* ============ 工具 ============ */
+  function byId(id){return document.getElementById(id);}
+  function p2(n){return n<10?'0'+n:''+n;}
+  function dstr(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function loadJSON(key, fb){try{var r=localStorage.getItem(key);return r?JSON.parse(r):fb;}catch(e){return fb;}}
+  function saveJSON(key,v){localStorage.setItem(key,JSON.stringify(v));}
+  var toastTimer=null;
+  function toast(msg){var el=byId('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},1800);}
+  function tick(){var d=new Date();var s=p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds());var el=byId('clockText');if(el)el.textContent=s;}
+  setInterval(tick,1000); tick();
+  function logout(){if(!confirm('确定要登出吗?'))return;localStorage.removeItem('zp_admin_logged');location.replace('login.html');}
+  function go(p){location.href=p;}
+  setTimeout(function(){byId('preloader').classList.add('gone');},220);
+
+  /* ============ 数据源 ============ */
+  var KEY = 'zp_admin_trips';
+  var TRIPS = loadJSON(KEY, null);
+  if (!TRIPS || !TRIPS.length) {
+    if (typeof TRIPS_SEED !== 'undefined') {
+      TRIPS = TRIPS_SEED.map(function(t){var c={};for(var k in t)c[k]=t[k];return c;});
+    } else { TRIPS=[]; }
+    saveJSON(KEY, TRIPS);
+  }
+
+  /* 按车牌分组（提前构建，供 VEH_INDEX 兜底使用） */
+  var BY_PLATE = {};
+  TRIPS.forEach(function(t){
+    if (!t || !t.plate) return;
+    (BY_PLATE[t.plate] = BY_PLATE[t.plate] || []).push(t);
+  });
+  Object.keys(BY_PLATE).forEach(function(p){
+    BY_PLATE[p].sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+  });
+
+  var VEH_LIST = loadJSON('zp_admin_vehicles', null);
+  var VEH_INDEX = {};
+  Object.keys(BY_PLATE).forEach(function(plate){
+    VEH_INDEX[plate] = { plate: plate };
+  });
+  if (VEH_LIST) VEH_LIST.forEach(function(v){if(v&&v.plate)VEH_INDEX[v.plate]=v;});
+  /* 从 trips 兜底 brand/model/dept（VEH_INDEX 缺失时） */
+  Object.keys(BY_PLATE).forEach(function(plate){
+    var v = VEH_INDEX[plate] || { plate: plate };
+    if (!v.brand && !v.model) {
+      var lst = BY_PLATE[plate];
+      for (var i=lst.length-1;i>=0;i--) {
+        if (lst[i] && (lst[i].model || lst[i].brand)) {
+          if (lst[i].brand && !v.brand) v.brand = lst[i].brand;
+          if (lst[i].model && !v.model) v.model = lst[i].model;
+          if (lst[i].dept && !v.dept) v.dept = lst[i].dept;
+          break;
+        }
+      }
+    }
+    VEH_INDEX[plate] = v;
+  });
+
+  /* ============ GZ 编号生成器 ============ */
+  var SEQ_BY_DATE = {};
+  TRIPS.forEach(function(t){
+    if (!t || !t.date) return;
+    SEQ_BY_DATE[t.date] = (SEQ_BY_DATE[t.date] || 0) + 1;
+  });
+  var ASSIGNED = {};
+  TRIPS.forEach(function(t){
+    if (!t || !t.date) return;
+    if (!t.no || !/^GZ\+/.test(t.no)) {
+      ASSIGNED[t.date] = (ASSIGNED[t.date] || 0) + 1;
+      t.no = 'GZ+' + t.date + '-' + (ASSIGNED[t.date] < 10 ? '0' + ASSIGNED[t.date] : ASSIGNED[t.date]);
+    }
+  });
+
+  /* ============ 数据模型：PHOTO_UNITS[plate] = [unit…] ============ */
+
+  /* 占位照片生成：每张 = 320×240 SVG，含「接车/还车·360°环视」字样 + 日期 + GZ编号 + 检查结果 */
+  function photoSvg(plate, kind, idx, date, no, result, role) {
+    var cOK = '#047857', cBAD = '#B91C1C';
+    var stamp = (role === 'cur') ? '本次' : '上次';
+    var stampBg = (role === 'cur') ? '#014DB2' : '#475569';
+    var resTxt = result || '正常';
+    var resBg = (resTxt === '异常') ? '#FEE2E2' : '#D1FAE5';
+    var resFg = (resTxt === '异常') ? cBAD : cOK;
+    var resBorder = (resTxt === '异常') ? '#FECACA' : '#A7F3D0';
+    var kindTxt = (kind === 'chk') ? '接车·360°环视' : '还车·360°环视';
+    var subTxt = (kind === 'chk') ? '车辆检查步骤' : '结束里程步骤';
+    var svg =
+      "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='240' viewBox='0 0 320 240'>" +
+      "<defs><linearGradient id='g" + idx + kind + role + "' x1='0' x2='1' y1='0' y2='1'>" +
+      "<stop offset='0' stop-color='#0A5FD4' stop-opacity='.14'/>" +
+      "<stop offset='1' stop-color='#0A5FD4' stop-opacity='.04'/></linearGradient></defs>" +
+      "<rect width='320' height='240' fill='#F4F6FA'/>" +
+      "<rect width='320' height='240' fill='url(#g" + idx + kind + role + ")'/>" +
+      "<rect x='8' y='8' width='304' height='224' rx='10' fill='none' stroke='#0A5FD4' stroke-opacity='.32' stroke-dasharray='6 4'/>" +
+      "<text x='160' y='70' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='22' font-weight='800' fill='#0A1628' letter-spacing='2'>" + plate + "</text>" +
+      "<text x='160' y='100' text-anchor='middle' font-family='sans-serif' font-size='14' font-weight='700' fill='#014DB2'>" + kindTxt + "</text>" +
+      "<text x='160' y='118' text-anchor='middle' font-family='sans-serif' font-size='11' fill='#6B7280'>" + subTxt + "</text>" +
+      "<text x='160' y='148' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='11' fill='#6B7280'>" + (date||'') + "</text>" +
+      "<text x='160' y='164' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='10' fill='#8A94A6'>" + (no||'') + "</text>" +
+      "<rect x='118' y='178' width='84' height='22' rx='11' fill='" + resBg + "' stroke='" + resBorder + "'/>" +
+      "<text x='160' y='194' text-anchor='middle' font-family='sans-serif' font-size='12' font-weight='800' fill='" + resFg + "'>" + resTxt + "</text>" +
+      "<rect x='6' y='6' width='46' height='20' rx='4' fill='" + stampBg + "'/>" +
+      "<text x='29' y='20' text-anchor='middle' font-family='sans-serif' font-size='10.5' font-weight='800' fill='#fff' letter-spacing='.5'>" + stamp + "</text>" +
+      "</svg>";
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+
+  /* 组装 unit 列表（按 cur.date 降序） */
+  var PHOTO_UNITS = {};
+  Object.keys(BY_PLATE).forEach(function(plate){
+    var lst = BY_PLATE[plate];
+    var arr = [];
+    for (var i=1; i<lst.length; i++) {
+      var prev = lst[i-1], cur = lst[i];
+      arr.push({
+        prev: prev, cur: cur,
+        isAbn: (cur.check === '异常' || cur.returnCheck === '异常' || prev.check === '异常' || prev.returnCheck === '异常')
+      });
+    }
+    arr.sort(function(a,b){return (b.cur.date||'').localeCompare(a.cur.date||'');});
+    PHOTO_UNITS[plate] = arr;
+  });
+
+  /* ============ 渲染 ============ */
+  function unitMeta(side, t) {
+    var role = side === 'cur' ? 'cur' : 'prev';
+    var tagTxt = side === 'cur' ? '本次工作记录' : '上次工作记录';
+    var checkRes = t.check || '正常';
+    var rtRes = t.returnCheck || '正常';
+    var anyBad = (checkRes === '异常' || rtRes === '异常');
+    return '<div class="um-side ' + role + '">' +
+      '<span class="tag">' + tagTxt + '</span>' +
+      '<span class="um-no">' + esc(t.no || '—') + '</span>' +
+      '<span class="um-date">' + esc(t.date || '—') + '</span>' +
+      '<span class="um-driver"><b>' + esc(t.driver || '—') + '</b> / ' + esc(t.emp || '—') + '</span>' +
+      (anyBad
+        ? '<span class="um-flag bad">含异常</span>'
+        : '<span class="um-flag ok">全程正常</span>') +
+      '</div>';
+  }
+
+  function pairHtml(kind, prev, cur) {
+    /* kind = 'chk' or 'rt' */
+    var title = (kind === 'chk') ? '接车对比' : '还车对比';
+    var step = (kind === 'chk') ? '①' : '②';
+    var desc = (kind === 'chk') ? '车辆检查步骤·360°环视' : '结束里程步骤·360°环视';
+    var prevRes = (kind === 'chk') ? (prev.check || '正常') : (prev.returnCheck || '正常');
+    var curRes = (kind === 'chk') ? (cur.check || '正常') : (cur.returnCheck || '正常');
+    var prevTime = (kind === 'chk') ? (prev.chkAt || '—') : (prev.rtAt || '—');
+    var curTime = (kind === 'chk') ? (cur.chkAt || '—') : (cur.rtAt || '—');
+    var prevPhoto = photoSvg(prev.plate, kind, 'p', prev.date, prev.no, prevRes, 'prev');
+    var curPhoto = photoSvg(cur.plate, kind, 'c', cur.date, cur.no, curRes, 'cur');
+    return '<div class="compare-pair">' +
+      '<div class="cp-title"><span class="step">' + step + '</span>' + title + '<span class="desc">· ' + desc + '</span></div>' +
+      '<div class="cp-photos">' +
+        '<div class="cp-photo prev" onclick="event.stopPropagation();openLb(\'' + esc(cur.plate) + '\',\'' + esc(prev.no) + '\',\'' + esc(cur.no) + '\',\'' + kind + '\')">' +
+          '<img src="' + prevPhoto + '" alt="前次' + title + '"/>' +
+          '<span class="cp-stamp">上次</span>' +
+          '<span class="cp-result ' + (prevRes === '异常' ? 'bad' : 'ok') + '">' + esc(prevRes) + '</span>' +
+        '</div>' +
+        '<div class="cp-arrow">→</div>' +
+        '<div class="cp-photo cur" onclick="event.stopPropagation();openLb(\'' + esc(cur.plate) + '\',\'' + esc(prev.no) + '\',\'' + esc(cur.no) + '\',\'' + kind + '\')">' +
+          '<img src="' + curPhoto + '" alt="后次' + title + '"/>' +
+          '<span class="cp-stamp">本次</span>' +
+          '<span class="cp-result ' + (curRes === '异常' ? 'bad' : 'ok') + '">' + esc(curRes) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cp-foot">' +
+        '<div class="when">上次 <b>' + esc(prevTime) + '</b></div>' +
+        '<div class="when">本次 <b>' + esc(curTime) + '</b></div>' +
+      '</div>' +
+      '</div>';
+  }
+
+  function renderUnit(unit) {
+    return '<div class="unit-card">' +
+      '<div class="unit-meta">' +
+        unitMeta('prev', unit.prev) +
+        '<div class="um-arrow">→</div>' +
+        unitMeta('cur', unit.cur) +
+      '</div>' +
+      '<div class="compare-group">' +
+        pairHtml('chk', unit.prev, unit.cur) +
+        pairHtml('rt', unit.prev, unit.cur) +
+      '</div>' +
+      '</div>';
+  }
+
+  function renderCard(plate) {
+    var v = VEH_INDEX[plate] || {};
+    var brand = v.brand || '';
+    var model = v.modelType || v.model || '';
+    var dept = v.dept || '';
+    var nameTxt = (brand || model) ? (brand + (model ? ' ' + model : '')).trim() : '车型未知 ' + esc(plate);
+    var units = PHOTO_UNITS[plate] || [];
+    var body = '';
+    if (!units.length) {
+      body = '<div class="empty-state" style="margin:18px 20px"><div class="empty-t">该车辆暂无对比单元</div><div class="empty-s">至少需要 2 条工作记录才能成对比</div></div>';
+    } else {
+      var h = '';
+      units.forEach(function(u){ h += renderUnit(u); });
+      body = '<div class="unit-list">' + h + '</div>';
+    }
+    return '<div class="veh-photo-card">' +
+      '<div class="vp-head">' +
+        '<div>' +
+          '<div class="vp-plate">' + esc(plate) + '</div>' +
+          '<div class="vp-info"><b>' + esc(nameTxt) + '</b>' + (dept ? ' · ' + esc(dept) : '') + '</div>' +
+        '</div>' +
+        '<div class="vp-count' + (units.length ? '' : ' zero') + '">' + units.length + ' 组对比</div>' +
+      '</div>' +
+      body +
+      '</div>';
+  }
+
+  function render() {
+    var plates = Object.keys(PHOTO_UNITS).filter(matchFilter).sort();
+    var cont = byId('photoContainer');
+    if (!plates.length) { cont.innerHTML=''; byId('emptyBox').style.display='block'; }
+    else {
+      var h=''; plates.forEach(function(p){ h += renderCard(p); });
+      cont.innerHTML=h; byId('emptyBox').style.display='none';
+    }
+  }
+
+  function renderKPI() {
+    var plates = Object.keys(PHOTO_UNITS);
+    var totalUnits = 0, totalTrips = 0, abnTrips = 0;
+    var seen = {};
+    plates.forEach(function(p){
+      totalUnits += (PHOTO_UNITS[p] || []).length;
+      (PHOTO_UNITS[p] || []).forEach(function(u){
+        [u.prev, u.cur].forEach(function(t){
+          var k = t.plate + '|' + (t.date || '') + '|' + (t.start || '');
+          if (seen[k]) return;
+          seen[k] = 1;
+          totalTrips++;
+          if (t.check === '异常' || t.returnCheck === '异常') abnTrips++;
+        });
+      });
+    });
+    byId('kpiCars').textContent = plates.length;
+    byId('kpiUnits').textContent = totalUnits;
+    byId('kpiTrips').textContent = totalTrips;
+    byId('kpiAbn').textContent = abnTrips;
+  }
+
+  function resetFilter() {
+    byId('fKeyword').value='';
+    byId('fPlate').value='';
+    byId('fResult').value='';
+    render();
+  }
+  function matchFilter(plate) {
+    var kw = (byId('fKeyword').value||'').trim().toLowerCase();
+    var pf = byId('fPlate').value, rs = byId('fResult').value;
+    if (pf && plate !== pf) return false;
+    var v = VEH_INDEX[plate] || {};
+    var blob = [plate, v.brand||'', v.modelType||v.model||'', v.dept||''].join(' ').toLowerCase();
+    if (kw && blob.indexOf(kw) < 0) return false;
+    if (rs) {
+      var units = PHOTO_UNITS[plate] || [];
+      var anyAbn = units.some(function(u){return u.isAbn;});
+      if (rs === 'abn' && !anyAbn) return false;
+      if (rs === 'ok' && anyAbn) return false;
+    }
+    return true;
+  }
+
+  ['fKeyword','fPlate','fResult'].forEach(function(id){
+    var el=byId(id); if(!el) return;
+    el.addEventListener('input', render);
+    el.addEventListener('change', render);
+  });
+
+  /* 车辆下拉 */
+  (function(){
+    var sel = byId('fPlate');
+    Object.keys(PHOTO_UNITS).sort().forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p; opt.textContent = p;
+      sel.appendChild(opt);
+    });
+  })();
+
+  /* ============ 大图预览：4 张同框 ============ */
+  function findUnitByNo(plate, noA, noB) {
+    var units = PHOTO_UNITS[plate] || [];
+    for (var i=0;i<units.length;i++) {
+      if (units[i].cur.no === noB && units[i].prev.no === noA) return units[i];
+    }
+    return null;
+  }
+  function openLb(plate, prevNo, curNo, kind) {
+    var unit = findUnitByNo(plate, prevNo, curNo);
+    if (!unit) { toast('未找到对应单元'); return; }
+    var pairs = [];
+    var titles = [];
+    if (kind === 'chk' || !kind) { pairs.push(pairHtml('chk', unit.prev, unit.cur)); titles.push('接车对比'); }
+    if (kind === 'rt' || !kind) { pairs.push(pairHtml('rt', unit.prev, unit.cur)); titles.push('还车对比'); }
+    var html = '';
+    if (kind === 'chk' || kind === 'rt') {
+      /* 单组放大：仍展示 4 张（左接车对比 右还车对比） */
+      html = pairHtml('chk', unit.prev, unit.cur) + pairHtml('rt', unit.prev, unit.cur);
+    } else {
+      html = pairHtml('chk', unit.prev, unit.cur) + pairHtml('rt', unit.prev, unit.cur);
+    }
+    byId('lbGrid').innerHTML = html;
+    byId('lbMask').classList.add('show');
+  }
+  function closeLb() { byId('lbMask').classList.remove('show'); }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && byId('lbMask').classList.contains('show')) closeLb();
+  });
+
+  function refresh() {
+    var fresh = loadJSON(KEY, null);
+    if (fresh && Array.isArray(fresh)) {
+      TRIPS = fresh;
+      saveJSON(KEY, TRIPS);
+      /* 重新组装 */
+      BY_PLATE = {};
+      TRIPS.forEach(function(t){ if(!t||!t.plate) return; (BY_PLATE[t.plate]=BY_PLATE[t.plate]||[]).push(t); });
+      Object.keys(BY_PLATE).forEach(function(p){ BY_PLATE[p].sort(function(a,b){return (a.date||'').localeCompare(b.date||'');}); });
+      PHOTO_UNITS = {};
+      Object.keys(BY_PLATE).forEach(function(plate){
+        var lst = BY_PLATE[plate];
+        var arr=[];
+        for (var i=1;i<lst.length;i++) {
+          var prev=lst[i-1], cur=lst[i];
+          arr.push({ prev:prev, cur:cur, isAbn:(cur.check==='异常'||cur.returnCheck==='异常'||prev.check==='异常'||prev.returnCheck==='异常') });
+        }
+        arr.sort(function(a,b){return (b.cur.date||'').localeCompare(a.cur.date||'');});
+        PHOTO_UNITS[plate] = arr;
+      });
+      renderKPI(); render();
+    }
+  }
+  setInterval(refresh, 30000);
+
+  renderKPI(); render();
+
+  </script>
+</body>
+</html>

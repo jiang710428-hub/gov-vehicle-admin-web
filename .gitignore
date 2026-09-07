@@ -1,0 +1,4 @@
+_qa_*.js
+_build_*.py
+.DS_Store
+Thumbs.db

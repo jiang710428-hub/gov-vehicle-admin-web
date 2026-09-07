@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>智慧新城公务用车管理平台 · 工作记录</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --primary: #014DB2;
+    --primary-deep: #001645;
+    --primary-light: #0A5FD4;
+    --primary-soft: #E8EEF8;
+    --primary-bg: #EFF6FF;
+    --text: #0A1628;
+    --sub: #6B7280;
+    --muted: #8A94A6;
+    --faint: #9AA5B5;
+    --green: #10B981;
+    --green-dark: #047857;
+    --green-bg: #ECFDF5;
+    --amber: #F59E0B;
+    --amber-dark: #B45309;
+    --amber-bg: #FFFBEB;
+    --red: #DC2626;
+    --red-dark: #B91C1C;
+    --red-bg: #FEF2F2;
+    --indigo: #4F46E5;
+    --indigo-bg: #EEF0FF;
+    --purple: #7C3AED;
+    --purple-bg: #F3EEFF;
+    --bg: #F4F6FA;
+    --card: #FFFFFF;
+    --line: #EEF0F5;
+    --line-2: #E5E9F0;
+    --sidebar-w: 232px;
+    --topbar-h: 64px;
+  }
+
+  html, body { height: 100%; }
+  body {
+    font-family: "Sarasa Gothic SC", "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    overflow: hidden; font-size: 14px;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  /* ============ 登录校验预加载 ============ */
+  .preloader {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #001645 0%, #0A4FB8 50%, #014DB2 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; flex-direction: column; gap: 16px;
+    transition: opacity .35s;
+  }
+  .preloader.gone { opacity: 0; pointer-events: none; }
+  .preloader .ring {
+    width: 44px; height: 44px;
+    border: 3px solid rgba(255,255,255,.2);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .preloader .txt { font-size: 13px; letter-spacing: 2px; opacity: .8; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ 整体布局 ============ */
+  .admin { display: flex; height: 100vh; min-width: 1080px; }
+
+  /* ============ 左侧导航(完整复用) ============ */
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0;
+    background: linear-gradient(180deg, #001645 0%, #012370 100%);
+    color: #fff; display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+  .sidebar::before {
+    content: ''; position: absolute;
+    top: -120px; right: -100px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(16,185,129,.16) 0%, rgba(16,185,129,0) 70%);
+  }
+  .sidebar > * { position: relative; z-index: 1; }
+  .sb-logo { padding: 22px 22px 16px; display: flex; align-items: center; gap: 12px; }
+  .sb-logo .ico {
+    width: 42px; height: 42px; border-radius: 11px;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(10,95,212,.32);
+  }
+  .sb-logo .t1 { font-size: 15px; font-weight: 800; letter-spacing: .5px; }
+  .sb-logo .t2 { font-size: 10px; color: rgba(255,255,255,.55); margin-top: 3px; letter-spacing: 1.5px; }
+  .sb-nav { flex: 1; padding: 8px 12px 12px; overflow-y: auto; scrollbar-width: thin; }
+  .sb-nav::-webkit-scrollbar { width: 4px; }
+  .sb-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 2px; }
+  .nav-group { margin-bottom: 14px; }
+  .nav-group .gt {
+    font-size: 10.5px; color: rgba(255,255,255,.4);
+    letter-spacing: 2px; padding: 6px 12px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    height: 40px; padding: 0 12px; border-radius: 10px;
+    color: rgba(255,255,255,.78); cursor: pointer;
+    font-size: 13.5px; font-weight: 500;
+    transition: background .18s, color .18s;
+    position: relative;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(10,95,212,.30), rgba(1,77,178,.18));
+    color: #fff; font-weight: 700;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 2px; background: #10B981;
+  }
+  .nav-item.active .ic { color: #fff; }
+  .nav-item .ic { width: 18px; height: 18px; flex-shrink: 0; opacity: .85; }
+  .nav-item .badge {
+    margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: 10px; background: #DC2626; color: #fff;
+    font-size: 10.5px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(220,38,38,.35);
+  }
+  .nav-item.disabled { color: rgba(255,255,255,.3); cursor: not-allowed; }
+  .nav-item.disabled:hover { background: transparent; color: rgba(255,255,255,.3); }
+  .sb-user {
+    padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sb-user .av {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    color: #fff; font-weight: 800; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(10,95,212,.32);
+  }
+  .sb-user .info { flex: 1; min-width: 0; }
+  .sb-user .nm { font-size: 13px; font-weight: 700; }
+  .sb-user .rl { font-size: 10.5px; color: rgba(255,255,255,.55); margin-top: 1px; }
+  .sb-user .out {
+    border: none; background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.78); font-size: 11px;
+    padding: 5px 10px; border-radius: 8px; cursor: pointer;
+    transition: background .15s;
+  }
+  .sb-user .out:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+  /* ============ 主区 ============ */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); }
+  .topbar {
+    height: var(--topbar-h); flex-shrink: 0;
+    background: #fff; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+  }
+  .crumbs { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .crumbs .home { color: var(--sub); }
+  .crumbs .sep { color: var(--faint); font-size: 10px; }
+  .crumbs .cur { color: var(--text); font-weight: 700; }
+  .top-right { display: flex; align-items: center; gap: 14px; }
+  .clock {
+    display: flex; align-items: center; gap: 7px;
+    background: #F4F7FB; color: var(--text);
+    padding: 7px 14px; border-radius: 100px;
+    font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  .clock .pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #10B981; box-shadow: 0 0 0 0 rgba(16,185,129,.5);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16,185,129,.55); }
+    70% { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
+    100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+  }
+  .top-icon-btn {
+    width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line);
+    background: #fff; cursor: pointer; color: var(--sub);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; transition: border-color .15s, color .15s;
+  }
+  .top-icon-btn:hover { color: var(--primary); border-color: var(--primary); }
+  .top-icon-btn .dot {
+    position: absolute; top: 7px; right: 7px;
+    width: 7px; height: 7px; border-radius: 50%; background: #DC2626;
+    box-shadow: 0 0 0 2px #fff;
+  }
+
+  /* ============ 内容区 ============ */
+  .content { flex: 1; overflow-y: auto; padding: 22px 28px 36px; }
+  .content::-webkit-scrollbar { width: 8px; }
+  .content::-webkit-scrollbar-thumb { background: #D6DCE6; border-radius: 4px; }
+  .content::-webkit-scrollbar-thumb:hover { background: #B8C2D2; }
+
+  /* ============ 顶部欢迎条(简版) ============ */
+  .page-hero {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, #001645 0%, #0A4FB8 50%, #014DB2 100%);
+    border-radius: 16px; padding: 22px 28px;
+    color: #fff; position: relative; overflow: hidden;
+    margin-bottom: 18px;
+    box-shadow: 0 10px 28px rgba(1, 77, 178, .18);
+  }
+  .page-hero::before {
+    content: ''; position: absolute;
+    top: -80px; right: -60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(16,185,129,.18) 0%, rgba(16,185,129,0) 70%);
+  }
+  .page-hero::after {
+    content: ''; position: absolute;
+    bottom: -60px; left: 30%;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 70%);
+  }
+  .page-hero > * { position: relative; z-index: 1; }
+  .page-hero .h-t { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+  .page-hero .h-s { font-size: 12.5px; opacity: .78; margin-top: 6px; letter-spacing: .5px; }
+  .page-hero .h-r { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .btn-primary {
+    height: 40px; padding: 0 18px; border-radius: 10px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, #0A5FD4 0%, #014DB2 100%);
+    color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 8px 18px rgba(1, 77, 178, .35);
+    transition: transform .15s;
+  }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-secondary {
+    height: 40px; padding: 0 18px; border-radius: 10px; border: 1px solid rgba(255,255,255,.28); cursor: pointer;
+    background: rgba(255,255,255,.10); color: #fff; font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: background .15s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,.18); }
+
+  /* ============ KPI 横排 ============ */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 18px;
+  }
+  .kpi {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 18px 20px;
+    position: relative; overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+    cursor: pointer;
+  }
+  .kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(15, 42, 86, .08); }
+  .kpi .num {
+    font-size: 30px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; color: transparent;
+    display: flex; align-items: baseline; gap: 4px;
+  }
+  .kpi .unit { font-size: 13px; font-weight: 500; -webkit-text-fill-color: var(--muted); }
+  .kpi .lab { font-size: 13.5px; font-weight: 700; margin-top: 8px; }
+  .kpi .delta { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .kpi .ic-deco {
+    position: absolute; top: 14px; right: 14px;
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* 4 个 KPI 配色 */
+  .kpi.blue .ic-deco { background: var(--primary-bg); color: var(--primary); }
+  .kpi.amber .num { background: linear-gradient(135deg, #D97706, #F59E0B); -webkit-background-clip: text; background-clip: text; }
+  .kpi.amber .ic-deco { background: var(--amber-bg); color: var(--amber-dark); }
+  .kpi.cyan .num { background: linear-gradient(135deg, #0891B2, #06B6D4); -webkit-background-clip: text; background-clip: text; }
+  .kpi.cyan .ic-deco { background: #ECFEFF; color: #0E7490; }
+  .kpi.green .num { background: linear-gradient(135deg, #047857, #10B981); -webkit-background-clip: text; background-clip: text; }
+  .kpi.green .ic-deco { background: var(--green-bg); color: var(--green-dark); }
+
+  /* ============ 卡片通用 ============ */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 16px 18px;
+    box-shadow: 0 1px 0 rgba(15, 42, 86, .02);
+    margin-bottom: 16px;
+  }
+
+  /* ============ 筛选条 ============ */
+  .filter-card { padding: 14px 18px 16px; }
+  .filter-row {
+    display: grid; grid-template-columns: 1.5fr 1.4fr .9fr .9fr auto;
+    gap: 12px; align-items: end;
+  }
+  .f-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .f-item.grow { min-width: 180px; }
+  .f-item label {
+    font-size: 11.5px; color: var(--sub); font-weight: 600;
+    letter-spacing: .5px;
+  }
+  .f-input {
+    height: 36px; padding: 0 12px; border-radius: 9px; outline: none;
+    border: 1.5px solid var(--line-2); background: #F8FAFD; color: var(--text);
+    font-size: 13px; font-family: inherit;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+    width: 100%; min-width: 0;
+  }
+  .f-input:focus {
+    border-color: var(--primary); background: #fff;
+    box-shadow: 0 0 0 3px rgba(1, 77, 178, .10);
+  }
+  .f-input::placeholder { color: #B4BDCC; }
+  select.f-input {
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  .date-range { display: flex; align-items: center; gap: 6px; }
+  .date-range .f-input { min-width: 0; flex: 1; }
+  .date-range .sep { color: var(--muted); font-size: 12px; }
+  .f-actions { display: flex; align-items: center; gap: 8px; }
+  .btn-ghost {
+    height: 36px; padding: 0 14px; border-radius: 9px;
+    border: 1.5px solid var(--line-2); background: #fff; color: var(--sub);
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-ghost.blue {
+    border: 1.5px solid var(--primary); background: var(--primary-bg); color: var(--primary);
+  }
+
+  /* ============ 列表 ============ */
+  .list-card { padding: 0; overflow: hidden; }
+  .list-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--line);
+  }
+  .list-head .lh-t { font-size: 14.5px; font-weight: 800; letter-spacing: .5px; }
+  .list-head .lh-meta { font-size: 12.5px; color: var(--muted); }
+  .list-head .lh-meta b { color: var(--primary); font-weight: 800; }
+  .table-wrap { overflow-x: auto; }
+  table.dt {
+    width: 100%; border-collapse: collapse;
+    font-size: 12px;
+    table-layout: auto;
+  }
+  .dt thead th {
+    background: #F7F9FC; color: var(--sub);
+    font-weight: 700; font-size: 11.5px; letter-spacing: .5px;
+    text-align: left; padding: 10px 11px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .dt tbody td {
+    padding: 11px 11px; border-bottom: 1px solid var(--line);
+    color: var(--text); vertical-align: middle;
+  }
+  .dt tbody tr { transition: background .12s; }
+  .dt tbody tr:hover { background: #F8FBFF; }
+  .dt tbody tr:last-child td { border-bottom: none; }
+
+  .cell-no { font-family: "Cascadia Code", Consolas, monospace; font-size: 11.5px; color: var(--primary-deep); font-weight: 700; }
+  .cell-driver { display: flex; align-items: center; gap: 7px; min-width: 90px; }
+  .cell-driver .av {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    color: #fff; font-size: 10.5px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background-size: cover; background-position: center;
+  }
+  .cell-driver .av.has-photo { background-image: var(--av-img); box-shadow: 0 1px 3px rgba(15,23,42,.12); }
+  .cell-driver .nm { font-size: 12.5px; font-weight: 700; line-height: 1.2; }
+  .cell-drv-no { font-family: "Cascadia Code", Consolas, monospace; font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .cell-date { white-space: nowrap; }
+  .cell-date .d { font-weight: 700; }
+  .cell-date .w { font-size: 10.5px; color: var(--muted); margin-left: 4px; }
+  .cell-today {
+    display: inline-block; margin-left: 4px;
+    font-size: 10px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    border-radius: 100px; padding: 1px 7px; letter-spacing: .5px;
+  }
+  .cell-veh-pl {
+    background: #0A1628; color: #fff;
+    font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px;
+    padding: 3px 8px; border-radius: 5px; font-family: "Cascadia Code", Consolas, monospace;
+    white-space: nowrap;
+  }
+  .cell-brand {
+    font-size: 12px; font-weight: 700; color: var(--text);
+    background: #F4F6FB; border: 1px solid var(--line-2);
+    border-radius: 6px; padding: 3px 8px; display: inline-block;
+  }
+  .cell-model { font-size: 12px; color: var(--sub); }
+  .cell-last { font-size: 12.5px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .cell-mut { font-size: 12px; color: #C2C9D4; }
+  .cell-reason {
+    display: inline-block;
+    font-size: 11.5px; font-weight: 600; color: var(--primary);
+    background: var(--primary-bg); border-radius: 100px; padding: 3px 9px;
+  }
+  .cell-time { font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; font-weight: 600; }
+  .cell-time .arrow { color: #C2C9D4; margin: 0 3px; }
+  .cell-from { font-size: 12.5px; color: var(--sub); }
+  .cell-from b { color: var(--text); font-weight: 700; }
+  .cell-from .arrow { color: #C2C9D4; margin: 0 4px; }
+  .cell-from .to { color: var(--text); font-weight: 700; }
+
+  /* 状态徽章 */
+  .st {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; letter-spacing: .3px;
+    border-radius: 100px; padding: 3px 10px; white-space: nowrap;
+  }
+  .st::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+  .st.wait { color: var(--amber-dark); background: var(--amber-bg); border: 1px solid #FDE68A; }
+  .st.wait::before { background: var(--amber); }
+  .st.doing { color: var(--primary); background: var(--primary-bg); border: 1px solid #BFD8F6; }
+  .st.doing::before { background: var(--primary); box-shadow: 0 0 0 3px rgba(1, 77, 178, .18); }
+  .st.done { color: var(--green-dark); background: var(--green-bg); border: 1px solid #A7F3D0; }
+  .st.done::before { background: var(--green); }
+
+  /* 操作列 */
+  .op-col { white-space: nowrap; }
+  .op-btn {
+    border: none; background: none; cursor: pointer;
+    font-size: 12px; font-weight: 600;
+    padding: 5px 9px; border-radius: 7px;
+    display: inline-flex; align-items: center; gap: 3px;
+    transition: background .15s;
+  }
+  .op-btn.view { color: var(--primary); background: var(--primary-bg); }
+  .op-btn.view:hover { background: #DCEBFD; }
+  .op-btn.del { color: var(--red); background: var(--red-bg); }
+  .op-btn.del:hover { background: #FEE2E2; }
+
+  /* 行展开已移除,改详情弹窗查看 */
+
+  /* 详情弹窗 */
+  .modal.detail {
+    width: 720px; max-width: calc(100% - 40px);
+    padding: 0; text-align: left;
+    max-height: calc(100vh - 80px);
+    display: flex; flex-direction: column;
+  }
+  .detail-head {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .detail-head .dh-l .dh-t {
+    font-size: 16px; font-weight: 800; letter-spacing: .5px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .detail-head .dh-l .dh-no {
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 12px; color: var(--primary-deep); font-weight: 700;
+    background: var(--primary-bg);
+    padding: 3px 9px; border-radius: 6px;
+  }
+  .detail-head .dh-l .dh-s { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .detail-close {
+    width: 32px; height: 32px; border: none; background: #F4F6FB;
+    color: var(--sub); border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, color .15s;
+  }
+  .detail-close:hover { background: #E2E7EE; color: var(--text); }
+  .detail-body {
+    padding: 18px 24px 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .detail-body::-webkit-scrollbar { width: 6px; }
+  .detail-body::-webkit-scrollbar-thumb { background: #D6DEEC; border-radius: 3px; }
+  .detail-body::-webkit-scrollbar-thumb:hover { background: #B6C3D9; }
+
+  .d-section { margin-bottom: 18px; }
+  .d-section:last-child { margin-bottom: 0; }
+  .d-section .d-h {
+    font-size: 11.5px; color: var(--sub); font-weight: 700;
+    letter-spacing: 1.2px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .d-section .d-h::before {
+    content: ''; width: 3px; height: 13px; border-radius: 2px;
+    background: linear-gradient(180deg, #0A5FD4, #014DB2);
+  }
+  .d-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px;
+    background: #F8FBFF; border: 1px solid var(--line-2); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .d-row { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .d-row .rk { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .5px; }
+  .d-row .rv { font-size: 13px; color: var(--text); font-weight: 600; word-break: break-all; }
+  .d-row .rv.empty { color: #B4BDCC; font-style: italic; font-weight: 500; }
+  .d-row.full { grid-column: 1 / -1; }
+  .d-row .rv .mono { font-family: "Cascadia Code", Consolas, monospace; }
+  .d-row .rv .pl {
+    display: inline-block;
+    background: #0A1628; color: #fff;
+    font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px;
+    padding: 3px 8px; border-radius: 5px;
+    font-family: "Cascadia Code", Consolas, monospace;
+    vertical-align: middle;
+  }
+  .d-row .rv .meta-line {
+    font-size: 11.5px; color: var(--sub); margin-top: 3px;
+  }
+  .d-row .rv .st { margin-top: 4px; }
+
+  .peer-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .peer-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--text); font-weight: 600;
+    background: #fff; border: 1px solid var(--line-2);
+    border-radius: 100px; padding: 3px 10px;
+  }
+  .empty-txt { color: #B4BDCC; font-style: italic; font-size: 12.5px; }
+  .d-photos { display: flex; gap: 8px; flex-wrap: wrap; }
+  .d-photo {
+    width: 84px; height: 84px; border-radius: 10px; overflow: hidden;
+    background: #F0F2F7; border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .d-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .d-photo.none { color: var(--muted); font-size: 11px; }
+
+  .detail-foot {
+    border-top: 1px solid var(--line);
+    padding: 14px 24px;
+    display: flex; justify-content: flex-end; gap: 10px;
+    flex-shrink: 0;
+    background: #FBFCFE; border-radius: 0 0 16px 16px;
+  }
+  .detail-foot .m-no, .detail-foot .m-yes {
+    flex: 0 0 auto; width: 120px;
+    height: 40px; border-radius: 10px; cursor: pointer;
+    font-size: 13.5px; font-weight: 700; letter-spacing: 1px;
+    transition: transform .15s, background .15s;
+  }
+  .detail-foot .m-no {
+    border: 1.5px solid var(--line-2); background: #fff; color: var(--sub);
+  }
+  .detail-foot .m-no:hover { border-color: var(--primary); color: var(--primary); }
+  .detail-foot .m-yes {
+    border: none; color: #fff;
+    background: linear-gradient(135deg, #F87171, #DC2626);
+    box-shadow: 0 6px 14px rgba(220, 38, 38, .25);
+  }
+  .detail-foot .m-yes:hover { filter: brightness(1.05); }
+  .detail-foot .m-yes:active { transform: scale(.98); }
+
+  /* 弹层:删除确认(独立 .modal-confirm) */
+  .modal.confirm { width: 420px; max-width: calc(100% - 40px); }
+
+  /* 空态 */
+  .empty-state {
+    padding: 56px 20px; text-align: center; color: var(--muted);
+  }
+  .empty-state .e-ic {
+    width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 18px;
+    background: linear-gradient(135deg, #EAF1FC, #DCE9FB);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-state .e-t { font-size: 14.5px; font-weight: 700; color: var(--text); }
+  .empty-state .e-s { font-size: 12px; margin-top: 6px; line-height: 1.7; }
+
+  /* 弹层:通用遮罩(详情/删除确认共用) */
+  .modal-mask {
+    position: fixed; inset: 0; background: rgba(7, 15, 30, 0.5);
+    opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 900;
+  }
+  .modal-mask.show { opacity: 1; pointer-events: auto; }
+  .modal {
+    position: fixed; left: 50%; top: 50%; z-index: 901;
+    width: 420px; max-width: calc(100% - 40px);
+    background: #fff; border-radius: 16px;
+    transform: translate(-50%, -45%) scale(.96); opacity: 0; pointer-events: none;
+    transition: all .25s; padding: 22px 24px 20px;
+    box-shadow: 0 24px 60px rgba(7, 15, 30, .25);
+  }
+  .modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+  .modal .m-ic {
+    width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%;
+    background: var(--red-bg); color: var(--red);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal .m-t { font-size: 16px; font-weight: 800; text-align: center; }
+  .modal .m-s { font-size: 12.5px; color: var(--muted); text-align: center; margin: 8px 0 16px; line-height: 1.7; }
+  .modal .m-fld { margin-bottom: 14px; }
+  .modal .m-fld label { display: block; font-size: 12px; color: var(--sub); font-weight: 600; margin-bottom: 6px; }
+  .modal .m-fld textarea {
+    width: 100%; min-height: 72px; padding: 10px 12px; border-radius: 9px; outline: none;
+    border: 1.5px solid var(--line-2); background: #F8FAFD;
+    font-size: 13px; line-height: 1.6; resize: none; font-family: inherit;
+    transition: border-color .2s, background .2s;
+  }
+  .modal .m-fld textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(1, 77, 178, .10); }
+  .modal .m-ops { display: flex; gap: 10px; }
+  .modal .m-ops button {
+    flex: 1; height: 42px; border-radius: 10px; cursor: pointer;
+    font-size: 13.5px; font-weight: 700; letter-spacing: 1px;
+    transition: transform .15s;
+  }
+  .modal .m-ops button:active { transform: scale(.98); }
+  .modal .m-ops .m-no { border: 1.5px solid var(--line-2); background: #fff; color: var(--sub); }
+  .modal .m-ops .m-yes {
+    border: none; color: #fff;
+    background: linear-gradient(135deg, #F87171, #DC2626);
+    box-shadow: 0 6px 14px rgba(220, 38, 38, .30);
+  }
+
+  /* toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 36px; transform: translateX(-50%) translateY(16px);
+    background: rgba(10, 22, 40, .92); color: #fff;
+    padding: 10px 22px; border-radius: 100px; font-size: 13px;
+    opacity: 0; pointer-events: none; transition: all .25s; z-index: 1100;
+    white-space: nowrap; max-width: 80vw;
+    box-shadow: 0 10px 30px rgba(7, 15, 30, .25);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 响应式:窄屏隐藏次要列 */
+  @media (max-width: 1280px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .filter-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ============ 驾驶员管理扩展 ============ */
+  .kpi.red .num { background: linear-gradient(135deg, #DC2626, #F87171); -webkit-background-clip: text; background-clip: text; }
+  .kpi.red .ic-deco { background: var(--red-bg); color: var(--red); }
+  .st.off { color: #6B7280; background: #F3F4F6; border: 1px solid #E5E7EB; }
+  .st.off::before { background: #9CA3AF; }
+  .st.expired { color: var(--red); background: var(--red-bg); border: 1px solid #FECACA; }
+  .st.expired::before { background: var(--red); }
+  .op-btn.edit { color: #B45309; background: #FFF7E8; }
+  .op-btn.edit:hover { background: #FDEECD; }
+  .st.working { color: var(--primary); background: var(--primary-bg); border: 1px solid #BFD8F6; }
+  .st.working::before { background: var(--primary); box-shadow: 0 0 0 3px rgba(1, 77, 178, .18); }
+  .st.idle { color: var(--amber-dark); background: var(--amber-bg); border: 1px solid #FDE68A; }
+  .st.idle::before { background: var(--amber); }
+  .st.disabled { color: #DC2626; background: #FEF2F2; border: 1px solid #FECACA; }
+  .st.disabled::before { background: #DC2626; }
+  .op-btn.enable { color: var(--green-dark); background: var(--green-bg); }
+  .op-btn.enable:hover { background: #A7F3D0; }
+  .btn-primary {
+    height: 40px; padding: 0 22px; border: none; border-radius: 10px; cursor: pointer;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2); color: #fff;
+    font-size: 13.5px; font-weight: 700; letter-spacing: 1px;
+    display: inline-flex; align-items: center; gap: 7px;
+    box-shadow: 0 6px 14px rgba(1, 77, 178, .28);
+    transition: transform .15s, filter .15s;
+  }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-primary:active { transform: scale(.97); }
+  .detail-head .dh-av {
+    width: 44px; height: 44px; border-radius: 14px; margin-right: 12px;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    color: #fff; font-size: 19px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background-size: cover; background-position: center;
+  }
+  .detail-head .dh-av.has-photo {
+    background-image: var(--av-img); text-indent: -9999px;
+    box-shadow: 0 2px 6px rgba(15,23,42,.14);
+  }
+  .modal.form { width: 640px; max-width: calc(100% - 40px); padding: 0; text-align: left; max-height: calc(100vh - 80px); display: flex; flex-direction: column; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; padding: 18px 24px 6px; overflow-y: auto; flex: 1; }
+  .form-grid::-webkit-scrollbar { width: 6px; }
+  .form-grid::-webkit-scrollbar-thumb { background: #D6DEEC; border-radius: 3px; }
+  .ffld { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ffld.full { grid-column: 1 / -1; }
+  .ffld label { font-size: 12px; color: var(--sub); font-weight: 700; }
+  .ffld label .req { color: var(--red); margin-left: 2px; }
+  .ffld input, .ffld select {
+    height: 38px; border-radius: 9px; outline: none;
+    border: 1.5px solid var(--line-2); background: #F8FAFD;
+    padding: 0 12px; font-size: 13px; color: var(--text); font-family: inherit;
+    transition: border-color .2s, background .2s; width: 100%; box-sizing: border-box;
+  }
+  .ffld input:focus, .ffld select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(1,77,178,.10); }
+  .ffld input.err { border-color: var(--red); background: #FFF7F7; }
+  .ffld .hint { font-size: 11px; color: var(--muted); }
+  /* 头像上传 */
+  .ffld.avatar-field { grid-column: 1 / -1; }
+  .av-uploader { display: flex; gap: 16px; align-items: center; }
+  .av-pre {
+    width: 88px; height: 88px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #E8EEF8, #C9D8EC);
+    border: 1.5px dashed #B6C3D9;
+    color: #6B7280; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background-size: cover; background-position: center;
+    overflow: hidden; position: relative;
+  }
+  .av-pre img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+  .av-pre-empty { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); }
+  .av-pre-empty::before { content: '+'; font-size: 26px; font-weight: 600; opacity: .55; }
+  .av-tools { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+  .av-btn { height: 34px; padding: 0 14px; font-size: 12.5px; border-radius: 8px; cursor: pointer; }
+  .av-btn.m-no { background: #F1F3F7; color: var(--sub); border: none; box-shadow: none; }
+  .av-btn.m-no:hover { background: #E5E9F0; }
+  .av-tip { font-size: 11px; color: var(--muted); line-height: 1.55; }
+  .sec-title { grid-column: 1 / -1; font-size: 11.5px; color: var(--sub); font-weight: 700; letter-spacing: 1.2px; display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .sec-title::before { content: ''; width: 3px; height: 13px; border-radius: 2px; background: linear-gradient(180deg, #0A5FD4, #014DB2); }
+  @media (max-width: 1280px) { .form-grid { grid-template-columns: 1fr; } }
+  .cell-phone, .cell-hire { font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; color: var(--text); white-space: nowrap; }
+  .cell-licno { font-family: "Cascadia Code", Consolas, monospace; font-size: 11.5px; color: var(--sub); white-space: nowrap; }
+  .cell-type { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .del-preview { background: #F8FBFF; border: 1px solid var(--line-2); border-radius: 10px; padding: 12px 14px; margin: 14px 0 18px; }
+</style>
+  <style>
+  /* ============ 出勤记录页专属 ============ */
+  .st.slot-am { color: #014DB2; background: #E7F0FE; border: 1px solid #C7DCFA; }
+  .st.slot-am::before { background: #0A5FD4; }
+  .st.slot-pm { color: #4F46E5; background: #EEF0FF; border: 1px solid #DCDFFC; }
+  .st.slot-pm::before { background: #6366F1; }
+  /* ============ 工作记录页专属 ============ */
+  /* 环节徽章:接车/过程/还车,正常绿 / 异常红 */
+  .st.sg-ok { color: var(--green-dark); background: var(--green-bg); border: 1px solid #A7F3D0; }
+  .st.sg-ok::before { background: var(--green); }
+  .st.sg-bad { color: var(--red); background: var(--red-bg); border: 1px solid #FECACA; }
+  .st.sg-bad::before { background: var(--red); }
+  .sg-col { display: flex; gap: 4px; flex-wrap: nowrap; }
+  .sg-col .st { padding: 2px 6px; font-size: 10.5px; }
+  .cell-km { font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .cell-km .u { font-size: 10px; color: var(--muted); font-weight: 600; margin-left: 2px; }
+  /* 详情:7 步流程时间线（开始用车 → 结束里程，同小程序行程详情） */
+  .tl-item { display: flex; gap: 12px; }
+  .tl-rail { width: 26px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+  .tl-dot {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11.5px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    box-shadow: 0 3px 8px rgba(1, 77, 178, .25);
+  }
+  .tl-dot.bad { background: linear-gradient(135deg, #F87171, #DC2626); box-shadow: 0 3px 8px rgba(220, 38, 38, .25); }
+  .tl-line { flex: 1; width: 2px; background: #E1E7F0; margin: 4px 0; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-card {
+    flex: 1; min-width: 0; margin-bottom: 12px;
+    border: 1px solid var(--line-2); border-radius: 12px;
+    padding: 12px 14px; background: #FFFFFF;
+  }
+  .tl-card.bad { border-color: #FECACA; background: #FFFBFB; }
+  .tl-hd { display: flex; align-items: center; gap: 8px; padding-bottom: 9px; margin-bottom: 9px; border-bottom: 1px solid #F2F4F8; }
+  .tl-hd .nm { font-size: 13.5px; font-weight: 800; color: var(--text); }
+  .tl-hd .tm { margin-left: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .srow { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 4.5px 0; }
+  .srow .sk { font-size: 12px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
+  .srow .sv { font-size: 13px; color: var(--text); font-weight: 600; text-align: right; word-break: break-all; }
+  .srow .sv.num { font-family: "Cascadia Code", Consolas, monospace; font-size: 15px; font-weight: 800; color: var(--primary-deep); }
+  .srow .sv .u { font-size: 10.5px; color: var(--muted); font-weight: 600; margin-left: 3px; }
+  .sv .svt { font-family: "Cascadia Code", Consolas, monospace; font-size: 14px; font-weight: 800; color: var(--primary-deep); }
+  .sec-lab { font-size: 11px; color: var(--muted); font-weight: 600; display: block; margin-top: 9px; margin-bottom: 6px; }
+  .ok-line { font-size: 12px; color: var(--muted); line-height: 1.7; display: flex; align-items: center; gap: 6px; }
+  .ok-line svg { flex-shrink: 0; }
+  /* 360° 环视方位 chips */
+  .circles { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cc {
+    font-size: 11px; font-weight: 700; border-radius: 100px; padding: 3px 10px;
+    background: #F0FDF6; color: var(--green-dark); border: 1px solid #A7E3C6;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .cc::before { content: '✓'; font-weight: 800; }
+  .cc.bad { background: var(--red-bg); color: var(--red); border-color: #FECACA; }
+  .cc.bad::before { content: '!'; font-weight: 800; }
+  /* 照片占位（现场照 / 仪表盘照 / 异常照） */
+  .shots { display: flex; gap: 7px; flex-wrap: wrap; }
+  .shot {
+    width: 56px; height: 56px; border-radius: 10px;
+    border: 1.5px dashed #C9D5E6; background: #F6F8FB;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--muted); gap: 3px; flex-shrink: 0;
+  }
+  .shot .t { font-size: 9px; font-weight: 600; }
+  .shot.done { border-style: solid; border-color: #A7E3C6; background: #F0FDF6; color: var(--green-dark); }
+  .shot.bad { border-style: solid; border-color: #FECACA; background: var(--red-bg); color: var(--red); }
+  /* 异常警示面板 */
+  .warn-box {
+    margin-top: 9px; border-radius: 10px; padding: 10px 12px;
+    background: var(--red-bg); border: 1px solid #FECACA;
+  }
+  .warn-box .wb-t {
+    font-size: 12px; font-weight: 800; color: var(--red);
+    display: flex; align-items: center; gap: 5px; margin-bottom: 6px;
+  }
+  .warn-box .wb-d { font-size: 12px; color: #7F1D1D; line-height: 1.7; margin-top: 6px; }
+    
+  /* ============ 驾驶员管理扩展 ============ */
+  .kpi.red .num { background: linear-gradient(135deg, #DC2626, #F87171); -webkit-background-clip: text; background-clip: text; }
+  .kpi.red .ic-deco { background: var(--red-bg); color: var(--red); }
+  .st.off { color: #6B7280; background: #F3F4F6; border: 1px solid #E5E7EB; }
+  .st.off::before { background: #9CA3AF; }
+  .st.expired { color: var(--red); background: var(--red-bg); border: 1px solid #FECACA; }
+  .st.expired::before { background: var(--red); }
+  .op-btn.edit { color: #B45309; background: #FFF7E8; }
+  .op-btn.edit:hover { background: #FDEECD; }
+  .st.working { color: var(--primary); background: var(--primary-bg); border: 1px solid #BFD8F6; }
+  .st.working::before { background: var(--primary); box-shadow: 0 0 0 3px rgba(1, 77, 178, .18); }
+  .st.idle { color: var(--amber-dark); background: var(--amber-bg); border: 1px solid #FDE68A; }
+  .st.idle::before { background: var(--amber); }
+  .st.disabled { color: #DC2626; background: #FEF2F2; border: 1px solid #FECACA; }
+  .st.disabled::before { background: #DC2626; }
+  .op-btn.enable { color: var(--green-dark); background: var(--green-bg); }
+  .op-btn.enable:hover { background: #A7F3D0; }
+  .btn-primary {
+    height: 40px; padding: 0 22px; border: none; border-radius: 10px; cursor: pointer;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2); color: #fff;
+    font-size: 13.5px; font-weight: 700; letter-spacing: 1px;
+    display: inline-flex; align-items: center; gap: 7px;
+    box-shadow: 0 6px 14px rgba(1, 77, 178, .28);
+    transition: transform .15s, filter .15s;
+  }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-primary:active { transform: scale(.97); }
+  .detail-head .dh-av {
+    width: 44px; height: 44px; border-radius: 14px; margin-right: 12px;
+    background: linear-gradient(135deg, #0A5FD4, #014DB2);
+    color: #fff; font-size: 19px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background-size: cover; background-position: center;
+  }
+  .detail-head .dh-av.has-photo {
+    background-image: var(--av-img); text-indent: -9999px;
+    box-shadow: 0 2px 6px rgba(15,23,42,.14);
+  }
+  .modal.form { width: 640px; max-width: calc(100% - 40px); padding: 0; text-align: left; max-height: calc(100vh - 80px); display: flex; flex-direction: column; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; padding: 18px 24px 6px; overflow-y: auto; flex: 1; }
+  .form-grid::-webkit-scrollbar { width: 6px; }
+  .form-grid::-webkit-scrollbar-thumb { background: #D6DEEC; border-radius: 3px; }
+  .ffld { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .ffld.full { grid-column: 1 / -1; }
+  .ffld label { font-size: 12px; color: var(--sub); font-weight: 700; }
+  .ffld label .req { color: var(--red); margin-left: 2px; }
+  .ffld input, .ffld select {
+    height: 38px; border-radius: 9px; outline: none;
+    border: 1.5px solid var(--line-2); background: #F8FAFD;
+    padding: 0 12px; font-size: 13px; color: var(--text); font-family: inherit;
+    transition: border-color .2s, background .2s; width: 100%; box-sizing: border-box;
+  }
+  .ffld input:focus, .ffld select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(1,77,178,.10); }
+  .ffld input.err { border-color: var(--red); background: #FFF7F7; }
+  .ffld .hint { font-size: 11px; color: var(--muted); }
+  /* 头像上传 */
+  .ffld.avatar-field { grid-column: 1 / -1; }
+  .av-uploader { display: flex; gap: 16px; align-items: center; }
+  .av-pre {
+    width: 88px; height: 88px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #E8EEF8, #C9D8EC);
+    border: 1.5px dashed #B6C3D9;
+    color: #6B7280; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background-size: cover; background-position: center;
+    overflow: hidden; position: relative;
+  }
+  .av-pre img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+  .av-pre-empty { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); }
+  .av-pre-empty::before { content: '+'; font-size: 26px; font-weight: 600; opacity: .55; }
+  .av-tools { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+  .av-btn { height: 34px; padding: 0 14px; font-size: 12.5px; border-radius: 8px; cursor: pointer; }
+  .av-btn.m-no { background: #F1F3F7; color: var(--sub); border: none; box-shadow: none; }
+  .av-btn.m-no:hover { background: #E5E9F0; }
+  .av-tip { font-size: 11px; color: var(--muted); line-height: 1.55; }
+  .sec-title { grid-column: 1 / -1; font-size: 11.5px; color: var(--sub); font-weight: 700; letter-spacing: 1.2px; display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .sec-title::before { content: ''; width: 3px; height: 13px; border-radius: 2px; background: linear-gradient(180deg, #0A5FD4, #014DB2); }
+  @media (max-width: 1280px) { .form-grid { grid-template-columns: 1fr; } }
+  .cell-phone, .cell-hire { font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; color: var(--text); white-space: nowrap; }
+  .cell-licno { font-family: "Cascadia Code", Consolas, monospace; font-size: 11.5px; color: var(--sub); white-space: nowrap; }
+  .cell-type { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .del-preview { background: #F8FBFF; border: 1px solid var(--line-2); border-radius: 10px; padding: 12px 14px; margin: 14px 0 18px; }
+</style>
+</head>
+<body>
+  <div class="preloader" id="preloader">
+    <div class="ring"></div>
+    <div class="txt">加载中…</div>
+  </div>
+
+  <div class="admin">
+
+    <!-- ============ 左侧导航 ============ -->
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 44 44" fill="none">
+            <path d="M8.5 27L11.2 20.9C11.9 19.3 13.4 18.3 15.1 18.3H28.9C30.6 18.3 32.1 19.3 32.8 20.9L35.5 27" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14.5 13.7C15.1 12.2 16.5 11.2 18.1 11.2H25.9C27.5 11.2 28.9 12.2 29.5 13.7L31.2 18H12.8L14.5 13.7Z" stroke="#FFFFFF" stroke-width="2.4" stroke-linejoin="round"/>
+            <rect x="10.5" y="27" width="23" height="4" rx="2" fill="#FFFFFF"/>
+            <circle cx="15.5" cy="28.5" r="2.4" fill="#014DB2"/>
+            <circle cx="28.5" cy="28.5" r="2.4" fill="#014DB2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="t1">公务用车管理</div>
+          <div class="t2">ADMIN CONSOLE</div>
+        </div>
+      </div>
+
+      <nav class="sb-nav">
+        <div class="nav-group">
+          <div class="gt">运营</div>
+          <a class="nav-item" href="index.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>工作台</span>
+          </a>
+          <a class="nav-item" href="dispatch.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span>派单管理</span>
+          </a>
+          <a class="nav-item" href="attendance.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3.2 2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>出勤记录</span>
+          </a>
+          <a class="nav-item" href="worklog.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M5 4h11l3 3v13H5V4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 11h8M8 15h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>工作记录</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="gt">资源</div>
+          <a class="nav-item" href="vehicles.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 14l1.5-4.5C5.8 8.5 6.7 8 7.6 8h8.8c.9 0 1.8.5 2.1 1.5L20 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="14" width="18" height="4" rx="1" stroke="currentColor" stroke-width="1.6"/><circle cx="7.5" cy="18.5" r="1.5" fill="currentColor"/><circle cx="16.5" cy="18.5" r="1.5" fill="currentColor"/></svg>
+            <span>车辆管理</span>
+</a>
+          <a class="nav-item active" href="drivers.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>驾驶员</span>
+          </a>
+          <a class="nav-item" href="fuel.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 21V5a2 2 0 012-2h6a2 2 0 012 2v16M4 21h10M4 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8l2.5-2.5L21 8l-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>加油记录</span>
+          </a>
+          <a class="nav-item" href="maintain.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4l-6 6 2.5 2.5 6-6a4 4 0 005.4-5.4l-2 2-2-2 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>维修保养</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="gt">合规</div>
+          <a class="nav-item" href="insurance.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 3v5c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>保险信息</span>
+          </a>
+          <a class="nav-item" href="annual.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>年检信息</span>
+          </a>
+          <a class="nav-item" href="abnormal.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 17.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>异常档案</span>
+          </a>
+          <a class="nav-item" href="warning.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>系统预警</span>
+          </a>
+          <a class="nav-item" href="photos.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="11" r="1.8" stroke="currentColor" stroke-width="1.6"/><path d="M21 17l-5-5-7 7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>车辆照片档案</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="gt">系统</div>
+          <div class="nav-item" onclick="toast('部门管理开发中…')">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M3 21V8l9-5 9 5v13M9 21v-6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>部门管理</span>
+          </div>
+          <div class="nav-item" onclick="toast('角色权限开发中…')">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11" r="2" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span>角色权限</span>
+          </div>
+          <div class="nav-item disabled">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>系统设置</span>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sb-user">
+        <div class="av">A</div>
+        <div class="info">
+          <div class="nm" id="userName">admin</div>
+          <div class="rl">超级管理员</div>
+        </div>
+        <button class="out" onclick="logout()">登出</button>
+      </div>
+    </aside>
+    <!-- ============ 主区 ============ -->
+    <main class="main">
+      <header class="topbar">
+        <div class="crumbs">
+          <span class="home">资源</span>
+          <span class="sep">/</span>
+          <span class="cur">驾驶员管理</span>
+        </div>
+        <div class="top-right">
+          <div class="clock"><span class="pulse"></span><span id="clockText">--:--:--</span></div>
+          <button class="top-icon-btn" onclick="toast('暂无新通知')" title="通知">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 1112 0c0 7 3 7 3 9H3c0-2 3-2 3-9zM10 21a2 2 0 004 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="dot"></span>
+          </button>
+        </div>
+      </header>
+
+      <section class="content">
+        <!-- 顶部欢迎条 -->
+        <div class="page-hero">
+          <div class="h-l">
+            <div class="h-t">驾驶员管理</div>
+            <div class="h-s">维护车队驾驶员档案与驾驶证信息,人员状态按当日出勤记录自动判定,支持新增、编辑、查看、停用与启用</div>
+          </div>
+          <div class="h-r">
+            <button class="btn-primary" onclick="openCreate()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              新增驾驶员
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI 4 卡 -->
+        <div class="kpi-row">
+          <div class="kpi blue">
+            <div class="ic-deco">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </div>
+            <div class="num"><span id="kpiTotal">0</span><span class="unit">人</span></div>
+            <div class="lab">驾驶员总数</div>
+            <div class="delta" id="kpiTotalSub">覆盖 0 个部门</div>
+          </div>
+          <div class="kpi green">
+            <div class="ic-deco">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </div>
+            <div class="num"><span id="kpiWorking">0</span><span class="unit">人</span></div>
+            <div class="lab">工作中</div>
+            <div class="delta" id="kpiWorkingSub">今日有上班卡、无下班卡</div>
+          </div>
+          <div class="kpi amber">
+            <div class="ic-deco">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="num"><span id="kpiIdle">0</span><span class="unit">人</span></div>
+            <div class="lab">未工作</div>
+            <div class="delta" id="kpiIdleSub">今日无上班出勤记录</div>
+          </div>
+          <div class="kpi red">
+            <div class="ic-deco">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 3v5c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 9v4M12 16v.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+            </div>
+            <div class="num"><span id="kpiLic">0</span><span class="unit">人</span></div>
+            <div class="lab">驾驶证预警</div>
+            <div class="delta" id="kpiLicSub">已到期 0 · 即将到期 0</div>
+          </div>
+        </div>
+
+        <!-- 筛选条 -->
+        <div class="card filter-card">
+          <div class="filter-row">
+            <div class="f-item grow">
+              <label>关键词</label>
+              <input class="f-input" id="fKeyword" placeholder="搜索姓名 / 工号 / 手机号 / 驾驶证号">
+            </div>
+            <div class="f-item">
+              <label>部门</label>
+              <select class="f-input" id="fDept"><option value="">全部</option></select>
+            </div>
+            <div class="f-item">
+              <label>人员状态</label>
+              <select class="f-input" id="fStatus">
+                <option value="">全部</option>
+                <option value="working">工作中</option>
+                <option value="idle">未工作</option>
+                <option value="off">已下班</option>
+                <option value="disabled">已停用</option>
+              </select>
+            </div>
+            <div class="f-item">
+              <label>证件状态</label>
+              <select class="f-input" id="fLic">
+                <option value="">全部</option>
+                <option value="normal">正常</option>
+                <option value="expiring">即将到期</option>
+                <option value="expired">已到期</option>
+              </select>
+            </div>
+            <div class="f-actions">
+              <button class="btn-ghost" onclick="resetFilter()">重 置</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 列表 -->
+        <div class="card list-card">
+          <div class="list-head">
+            <div class="lh-t">驾驶员列表</div>
+            <div class="lh-meta">共 <b id="listTotal">0</b> 人 · 按工号升序</div>
+          </div>
+          <div class="table-wrap">
+            <table class="dt">
+              <thead>
+                <tr>
+                  <th>驾驶员</th>
+                  <th>工号</th>
+                  <th>手机</th>
+                  <th>部门</th>
+                  <th>入职时间</th>
+                  <th>人员状态</th>
+                  <th>准驾车型</th>
+                  <th>驾驶证号</th>
+                  <th>证件状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="drvTable"></tbody>
+            </table>
+            <div class="empty-state" id="emptyBox" style="display:none">
+              <div class="e-ic">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="#014DB2" stroke-width="1.7"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke="#014DB2" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </div>
+              <div class="e-t">暂无驾驶员数据</div>
+              <div class="e-s">点击右上角<b>「新增驾驶员」</b>建立第一份驾驶员档案</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 弹层:驾驶员详情(只读) -->
+  <div class="modal-mask" id="detailMask" onclick="closeDetail()"></div>
+  <div class="modal detail" id="drvModal">
+    <div class="detail-head">
+      <div class="dh-l" style="display:flex;align-items:center;">
+        <div class="dh-av" id="dhAv">?</div>
+        <div>
+          <div class="dh-t"><span id="dhTitle">驾驶员详情</span><span class="dh-no" id="dhNo">—</span></div>
+          <div class="dh-s" id="dhSub">查看驾驶员完整档案</div>
+        </div>
+      </div>
+      <button class="detail-close" onclick="closeDetail()" title="关闭">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+    <div class="detail-foot">
+      <button class="m-no" onclick="closeDetail()">关 闭</button>
+      <button class="m-yes" id="dhEditBtn" style="background:linear-gradient(135deg,#0A5FD4,#014DB2);box-shadow:0 6px 14px rgba(1,77,178,.28);" onclick="onDetailEdit()">编 辑</button>
+    </div>
+  </div>
+
+  <!-- 弹层:新增/编辑表单 -->
+  <div class="modal-mask" id="formMask" onclick="closeForm()"></div>
+  <div class="modal form" id="formModal">
+    <div class="detail-head">
+      <div class="dh-l">
+        <div class="dh-t"><span id="formTitle">新增驾驶员</span></div>
+        <div class="dh-s" id="formSub">维护驾驶员基本信息与驾驶证信息</div>
+      </div>
+      <button class="detail-close" onclick="closeForm()" title="关闭">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="form-grid">
+      <div class="sec-title">基本信息</div>
+      <div class="ffld avatar-field">
+        <label>头像</label>
+        <div class="av-uploader">
+          <input type="file" id="fAvFile" accept="image/*" style="display:none">
+          <div class="av-pre" id="fAvPre">
+            <div class="av-pre-empty">未上传头像</div>
+          </div>
+          <div class="av-tools">
+            <button type="button" class="m-yes av-btn" onclick="byId('fAvFile').click()">上传头像</button>
+            <button type="button" class="m-no av-btn" id="fAvDel" onclick="clearAvatar()">移除头像</button>
+            <span class="av-tip">支持 jpg / png，自动压缩；未上传时显示姓名首字母占位</span>
+          </div>
+        </div>
+      </div>
+      <div class="ffld">
+        <label>姓名<span class="req">*</span></label>
+        <input id="fName" type="text" maxlength="12" placeholder="请输入姓名">
+      </div>
+      <div class="ffld">
+        <label>工号<span class="req">*</span></label>
+        <input id="fNo" type="text" maxlength="8" placeholder="如 10086">
+        <span class="hint">全局唯一,创建后不可修改</span>
+      </div>
+      <div class="ffld">
+        <label>手机（登录账号）<span class="req">*</span></label>
+        <input id="fPhone" type="text" maxlength="11" placeholder="11 位手机号">
+        <span class="hint">驾驶员端小程序登录账号,创建后不可修改</span>
+      </div>
+      <div class="ffld">
+        <label>登录密码<span class="req">*</span></label>
+        <input id="fPwd" type="text" maxlength="20" placeholder="账号对应的登录密码">
+        <span class="hint">与登录账号配套,可随时修改,至少 6 位</span>
+      </div>
+      <div class="ffld">
+        <label>部门<span class="req">*</span></label>
+        <select class="f-input" id="fDeptIn">
+          <option value="">请选择部门</option>
+        </select>
+      </div>
+      <div class="ffld">
+        <label>入职时间</label>
+        <input id="fHire" type="date">
+      </div>
+      <div class="ffld">
+        <label>人员状态</label>
+        <input id="fStatusIn" type="text" disabled placeholder="保存后按当日出勤自动判定">
+        <span class="hint">系统按当日出勤记录自动判定:有上班无下班 = 工作中;无上班记录 = 未工作;上下班齐全 = 已下班</span>
+      </div>
+      <div class="sec-title">驾驶证信息</div>
+      <div class="ffld">
+        <label>驾驶证号<span class="req">*</span></label>
+        <input id="fLicNo" type="text" maxlength="18" placeholder="证件档案编号">
+      </div>
+      <div class="ffld">
+        <label>准驾车型<span class="req">*</span></label>
+        <input id="fLicType" type="text" maxlength="10" placeholder="如 C1 / B2 / A2">
+        <span class="hint">请按驾驶证准驾车型代号填写</span>
+      </div>
+      <div class="ffld">
+        <label>初次领证</label>
+        <input id="fLicFirst" type="date">
+      </div>
+      <div class="ffld">
+        <label>有效期至<span class="req">*</span></label>
+        <input id="fLicValid" type="date">
+        <span class="hint">证件状态按有效期自动判定:已到期 / 90 天内即将到期 / 正常</span>
+      </div>
+    </div>
+    <div class="detail-foot">
+      <button class="m-no" onclick="closeForm()">取 消</button>
+      <button class="m-yes" style="background:linear-gradient(135deg,#0A5FD4,#014DB2);box-shadow:0 6px 14px rgba(1,77,178,.28);" onclick="saveForm()">保 存</button>
+    </div>
+  </div>
+
+  <!-- 弹层:停用/启用确认 -->
+  <div class="modal-mask" id="delMask"></div>
+  <div class="modal confirm" id="delModal">
+    <div class="m-ic" id="delIc">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 8.5v5M12 16.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M10.3 3.8L2.8 17a2 2 0 001.7 3h15a2 2 0 001.7-3L13.7 3.8a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="m-t" id="delTitle">停用这名驾驶员?</div>
+    <div class="m-s" id="delDesc">停用后其登录账号将无法登录驾驶员端小程序,历史派单 / 工作记录不受影响,可随时重新启用</div>
+    <div class="del-preview" id="delPreview"></div>
+    <div class="m-ops">
+      <button class="m-no" onclick="closeToggle()">取 消</button>
+      <button class="m-yes" id="delYes" onclick="doToggle()">确认停用</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+<script>
+  /* ============ 登录态校验 ============ */
+  if (localStorage.getItem('zp_admin_logged') !== '1') {
+    location.replace('login.html');
+  }
+  var ACCOUNT = localStorage.getItem('zp_admin_account') || 'admin';
+  document.getElementById('userName').textContent = ACCOUNT;
+
+  /* ============ 工具 ============ */
+  function byId(id) { return document.getElementById(id); }
+  function p2(n) { return n < 10 ? '0' + n : '' + n; }
+  function dstr(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function parseDate(s) { var a = String(s).split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
+  function today() { return dstr(new Date()); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function avatarLetter(name) { return name ? String(name).charAt(0) : '?'; }
+  /* 占位头像:按部门色生成 SVG 圆形首字母(轻量,~0.6KB/张) */
+  function avatarSVG(name, dept) {
+    var deptColor = { '综合办公室': '#0A5FD4', '机关事务中心': '#014DB2', '接待联络处': '#10B981', '接待联络': '#10B981' };
+    var c = deptColor[dept] || '#014DB2';
+    var letter = avatarLetter(name) || '?';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
+      '<defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="' + c + '"/><stop offset="1" stop-color="#001645"/>' +
+      '</linearGradient></defs>' +
+      '<circle cx="60" cy="60" r="60" fill="url(#ag)"/>' +
+      '<text x="60" y="80" text-anchor="middle" font-family="Sarasa Gothic SC, PingFang SC, sans-serif" font-size="58" font-weight="600" fill="#FFFFFF">' + esc(letter) + '</text>' +
+      '</svg>';
+    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+  }
+  /* ============ 头像上传(选择 → 缩放至 240×240 jpeg → 预览) ============ */
+  var pendingAvatar = '';
+  function renderAvatarPreview(dataUrl) {
+    pendingAvatar = dataUrl || '';
+    var box = byId('fAvPre');
+    if (!box) return;
+    if (pendingAvatar) {
+      box.innerHTML = '<img src="' + pendingAvatar + '" alt="头像">';
+      box.style.backgroundImage = '';
+    } else {
+      box.innerHTML = '<div class="av-pre-empty">未上传头像</div>';
+      box.style.backgroundImage = '';
+    }
+  }
+  function clearAvatar() {
+    renderAvatarPreview('');
+    var f = byId('fAvFile');
+    if (f && f.value) f.value = '';
+  }
+  function compressImage(file, maxSide, quality, cb) {
+    var fr = new FileReader();
+    fr.onload = function (e) {
+      var img = new Image();
+      img.onload = function () {
+        var w = img.width, h = img.height;
+        var scale = Math.min(1, maxSide / Math.max(w, h));
+        var cw = Math.round(w * scale), ch = Math.round(h * scale);
+        var canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, 0, 0, cw, ch);
+        try {
+          var dataUrl = canvas.toDataURL('image/jpeg', quality);
+          cb(dataUrl);
+        } catch (err) {
+          toast('头像处理失败');
+        }
+      };
+      img.onerror = function () { toast('头像格式不支持'); };
+      img.src = e.target.result;
+    };
+    fr.onerror = function () { toast('读取头像失败'); };
+    fr.readAsDataURL(file);
+  }
+  var avInput = byId('fAvFile');
+  if (avInput) {
+    avInput.addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { toast('头像大小请控制在 2MB 以内'); e.target.value = ''; return; }
+      compressImage(file, 240, 0.85, function (dataUrl) { renderAvatarPreview(dataUrl); });
+    });
+  }
+  function loadJSON(key, fallback) {
+    try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function saveJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+  /* ============ 时钟 ============ */
+  function tickClock() {
+    var d = new Date();
+    byId('clockText').textContent = p2(d.getHours()) + ':' + p2(d.getMinutes()) + ':' + p2(d.getSeconds());
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ============ 驾驶员数据 ============ */
+  var KEY = 'zp_admin_drivers';
+  var SEED = [
+    { id: 'D001', name: '张三',   no: '10086', phone: '13800001086', pwd: '123456', dept: '综合办公室',   hireDate: '2021-03-15', status: 'working',
+      licNo: '320102199203154516', licType: 'C1', licFirst: '2013-06-20', licValid: '2029-06-20', avatar: avatarSVG('张三', '综合办公室') },
+    { id: 'D002', name: '李建国', no: '10087', phone: '13900001087', pwd: '123456', dept: '综合办公室',   hireDate: '2018-11-01', status: 'off',
+      licNo: '32010219851101325X', licType: 'B2', licFirst: '2010-04-12', licValid: '2026-10-30', avatar: avatarSVG('李建国', '综合办公室') },
+    { id: 'D003', name: '王强',   no: '10088', phone: '13700001088', pwd: '123456', dept: '机关事务中心', hireDate: '2019-07-22', status: 'working',
+      licNo: '320104199007225833', licType: 'C1', licFirst: '2015-09-02', licValid: '2027-09-02', avatar: avatarSVG('王强', '机关事务中心') },
+    { id: 'D004', name: '赵磊',   no: '10089', phone: '13600001089', pwd: '123456', dept: '机关事务中心', hireDate: '2020-05-11', status: 'idle',
+      licNo: '320105198805114419', licType: 'A2', licFirst: '2012-03-18', licValid: '2028-03-18', avatar: avatarSVG('赵磊', '机关事务中心') },
+    { id: 'D005', name: '钱伟',   no: '10090', phone: '13500001090', pwd: '123456', dept: '接待联络处',   hireDate: '2022-09-01', status: 'idle',
+      licNo: '320106199509017726', licType: 'C1', licFirst: '2018-12-10', licValid: '2026-08-31', avatar: avatarSVG('钱伟', '接待联络处') },
+    { id: 'D006', name: '孙浩',   no: '10091', phone: '13400001091', pwd: '123456', dept: '接待联络处',   hireDate: '2017-02-14', status: 'off',
+      licNo: '320103199202146027', licType: 'B1', licFirst: '2011-08-25', licValid: '2027-08-25', avatar: avatarSVG('孙浩', '接待联络处') }
+  ];
+
+  var LIST = loadJSON(KEY, null);
+  if (!LIST || !LIST.length) {
+    LIST = SEED.map(function (s) {
+      var c = {};
+      for (var k in s) c[k] = s[k];
+      return c;
+    });
+    saveJSON(KEY, LIST);
+  }
+  /* 自愈:旧版 zp_admin_drivers 缺字段,按工号回填新字段;pwd 缺失统一回填默认密码 */
+  (function heal() {
+    var dirty = false;
+    var FIELDS = ['phone', 'pwd', 'hireDate', 'licNo', 'licType', 'licFirst', 'licValid', 'avatar'];
+    LIST.forEach(function (r) {
+      var seed = null;
+      SEED.forEach(function (s) { if (s.no === r.no || s.id === r.id) seed = s; });
+      FIELDS.forEach(function (f) {
+        if (r[f] === undefined || r[f] === null || r[f] === '') {
+          if (f === 'avatar') { r[f] = avatarSVG(r.name, r.dept); }
+          else { r[f] = (seed && seed[f]) || (f === 'pwd' ? '123456' : ''); }
+          dirty = true;
+        }
+      });
+      if (!r.id) { r.id = 'D' + String(LIST.indexOf(r) + 1).padStart(3, '0'); dirty = true; }
+    });
+    if (dirty) saveJSON(KEY, LIST);
+  })();
+
+  /* ============ 人员状态:按当日出勤记录自动判定(非人工选择) ============
+     工作中 = 今日有上班卡、无下班卡;未工作 = 今日无上班记录;已下班 = 今日上下班齐全 */
+  var ATT_KEY = 'zp_attendance_list';
+  var ATT_TODAY = {};
+  function attOfToday() {
+    var map = {};
+    var t = today();
+    var att = loadJSON(ATT_KEY, []);
+    (att || []).forEach(function (a) {
+      if (!a || a.date !== t) return;
+      var k = String(a.driverNo || a.driverName || '');
+      if (!k) return;
+      if (!map[k]) map[k] = {};
+      if (a.slot === 'pm') map[k].pm = 1; else map[k].am = 1;
+    });
+    return map;
+  }
+  function stOf(r) {
+    var a = ATT_TODAY[r.no] || ATT_TODAY[r.name];
+    if (a && a.am) return a.pm ? 'off' : 'working';
+    return 'idle';
+  }
+  function syncStatus() {
+    var dirty = false;
+    LIST.forEach(function (r) {
+      var s = stOf(r);
+      if (r.status !== s) { r.status = s; dirty = true; }
+    });
+    if (dirty) saveJSON(KEY, LIST);
+  }
+  ATT_TODAY = attOfToday();
+  syncStatus();
+
+  /* ============ 常量与判定 ============ */
+  var ST_TXT = { working: '工作中', idle: '未工作', off: '已下班', disabled: '已停用' };
+  var LIC_TXT = { normal: '正常', expiring: '即将到期', expired: '已到期' };
+
+  function daysTo(dateStr) {
+    if (!dateStr) return null;
+    return Math.ceil((parseDate(dateStr) - new Date().setHours(0, 0, 0, 0)) / 86400000);
+  }
+  function licStOf(r) {
+    if (!r.licValid) return 'normal';
+    var d = daysTo(r.licValid);
+    if (d === null) return 'normal';
+    if (d < 0) return 'expired';
+    if (d <= 90) return 'expiring';
+    return 'normal';
+  }
+  /* 停用/启用:enabled === false 表示已停用,缺省视为启用 */
+  function isDisabled(r) { return !!r && r.enabled === false; }
+  function dispSt(r) { return isDisabled(r) ? 'disabled' : stOf(r); }
+  function stBadge(r) {
+    var s = dispSt(r);
+    return '<span class="st ' + s + '">' + ST_TXT[s] + '</span>';
+  }
+  function licBadge(r) {
+    var st = licStOf(r);
+    return '<span class="st ' + (st === 'expired' ? 'expired' : st === 'expiring' ? 'wait' : 'done') + '">' + LIC_TXT[st] + '</span>';
+  }
+
+  /* ============ 渲染 ============ */
+  function renderKPI() {
+    byId('kpiTotal').textContent = LIST.length;
+    var off2 = LIST.filter(function (r) { return isDisabled(r); }).length;
+    byId('kpiTotalSub').textContent = '启用 ' + (LIST.length - off2) + ' 人 · 已停用 ' + off2 + ' 人';
+    var act = LIST.filter(function (r) { return !isDisabled(r); });
+    var working = act.filter(function (r) { return stOf(r) === 'working'; }).length;
+    var idle = act.filter(function (r) { return stOf(r) === 'idle'; }).length;
+    var off = act.filter(function (r) { return stOf(r) === 'off'; }).length;
+    byId('kpiWorking').textContent = working;
+    byId('kpiWorkingSub').textContent = '今日有上班卡、无下班卡';
+    byId('kpiIdle').textContent = idle;
+    byId('kpiIdleSub').textContent = '已下班 ' + off + ' 人 · 其余今日无出勤';
+    var licExp = LIST.filter(function (r) { return licStOf(r) === 'expired'; }).length;
+    var licSoon = LIST.filter(function (r) { return licStOf(r) === 'expiring'; }).length;
+    byId('kpiLic').textContent = licExp + licSoon;
+    byId('kpiLicSub').textContent = '已到期 ' + licExp + ' · 即将到期 ' + licSoon;
+  }
+  function renderDeptOptions() {
+    var depts = {};
+    LIST.forEach(function (r) { if (r.dept) depts[r.dept] = 1; });
+    var h = '<option value="">全部</option>';
+    Object.keys(depts).sort().forEach(function (d) {
+      h += '<option value="' + esc(d) + '">' + esc(d) + '</option>';
+    });
+    byId('fDept').innerHTML = h;
+  }
+  function getFiltered() {
+    var kw = (byId('fKeyword').value || '').trim().toLowerCase();
+    var dept = byId('fDept').value;
+    var st = byId('fStatus').value;
+    var lic = byId('fLic').value;
+    return LIST.slice().filter(function (r) {
+      if (dept && r.dept !== dept) return false;
+      if (st && dispSt(r) !== st) return false;
+      if (lic && licStOf(r) !== lic) return false;
+      if (kw) {
+        var blob = [r.name, r.no, r.phone, r.licNo].join(' ').toLowerCase();
+        if (blob.indexOf(kw) < 0) return false;
+      }
+      return true;
+    }).sort(function (a, b) { return String(a.no).localeCompare(String(b.no), 'en'); });
+  }
+  function cellDriver(r) {
+    var avHtml = r.avatar
+      ? '<div class="av has-photo" style="background-image:url(\'' + r.avatar + '\')"></div>'
+      : '<div class="av">' + esc(avatarLetter(r.name)) + '</div>';
+    return '<div class="cell-driver">' + avHtml +
+      '<div class="nm">' + esc(r.name || '—') + '</div>' +
+      '</div>';
+  }
+  function renderRow(r) {
+    return '<tr data-id="' + esc(r.id) + '">' +
+      '<td>' + cellDriver(r) + '</td>' +
+      '<td class="cell-drv-no">' + esc(r.no || '—') + '</td>' +
+      '<td class="cell-phone">' + esc(r.phone || '—') + '</td>' +
+      '<td>' + esc(r.dept || '—') + '</td>' +
+      '<td class="cell-hire">' + esc(r.hireDate || '—') + '</td>' +
+      '<td>' + stBadge(r) + '</td>' +
+      '<td class="cell-type">' + esc(r.licType || '—') + '</td>' +
+      '<td class="cell-licno">' + esc(r.licNo || '—') + '</td>' +
+      '<td>' + licBadge(r) + '</td>' +
+      '<td><div class="op-col">' +
+        '<button class="op-btn view" onclick="openDetail(\'' + esc(r.id) + '\')">查看</button>' +
+        '<button class="op-btn edit" onclick="openEdit(\'' + esc(r.id) + '\')">编辑</button>' +
+        (isDisabled(r)
+          ? '<button class="op-btn enable" onclick="askToggle(\'' + esc(r.id) + '\')">启用</button>'
+          : '<button class="op-btn del" onclick="askToggle(\'' + esc(r.id) + '\')">停用</button>') +
+      '</div></td>' +
+      '</tr>';
+  }
+  function render() {
+    var list = getFiltered();
+    var tb = byId('drvTable');
+    if (!list.length) {
+      tb.innerHTML = '';
+      byId('emptyBox').style.display = 'block';
+    } else {
+      var h = '';
+      list.forEach(function (r) { h += renderRow(r); });
+      tb.innerHTML = h;
+      byId('emptyBox').style.display = 'none';
+    }
+    byId('listTotal').textContent = list.length;
+  }
+  function refresh() {
+    renderKPI();
+    render();
+  }
+  function resetFilter() {
+    byId('fKeyword').value = '';
+    byId('fDept').value = '';
+    byId('fStatus').value = '';
+    byId('fLic').value = '';
+    render();
+  }
+
+  /* ============ 详情弹窗 ============ */
+  var detailId = null;
+  function findDriver(id) {
+    var r = null;
+    LIST.forEach(function (x) { if (x.id === id) r = x; });
+    return r;
+  }
+  function row(k, v, empty) {
+    return '<div class="d-row"><div class="rk">' + k + '</div><div class="rv' + (empty ? ' empty' : '') + '">' + v + '</div></div>';
+  }
+  function openDetail(id) {
+    var r = findDriver(id);
+    if (!r) { toast('未找到该驾驶员'); return; }
+    detailId = id;
+    var dhAv = byId('dhAv');
+    if (r.avatar) {
+      dhAv.style.backgroundImage = "url('" + r.avatar + "')";
+      dhAv.classList.add('has-photo');
+      dhAv.textContent = '';
+    } else {
+      dhAv.style.backgroundImage = '';
+      dhAv.classList.remove('has-photo');
+      dhAv.textContent = avatarLetter(r.name);
+    }
+    byId('dhNo').textContent = r.no || '—';
+    byId('dhSub').textContent = (r.dept || '—') + ' · 入职 ' + (r.hireDate || '—') + ' · 档案编号 ' + (r.id || '—');
+    var st = licStOf(r);
+    var d = daysTo(r.licValid);
+    var licTip = '';
+    if (st === 'expired') licTip = '已过期 ' + Math.abs(d) + ' 天,请尽快办理换证';
+    else if (st === 'expiring') licTip = '剩余 ' + d + ' 天,即将到期请及时换证';
+    else if (d !== null) licTip = '剩余 ' + d + ' 天';
+    byId('detailBody').innerHTML =
+      '<div class="d-section">' +
+        '<div class="d-h">基本信息</div>' +
+        '<div class="d-grid">' +
+          row('姓名', esc(r.name || '—')) +
+          row('工号', '<span class="mono">' + esc(r.no || '—') + '</span>') +
+          row('手机（登录账号）', '<span class="mono">' + esc(r.phone || '—') + '</span>') +
+          row('登录密码', '<span class="mono">' + esc(r.pwd || '—') + '</span>') +
+          row('部门', esc(r.dept || '—')) +
+          row('入职时间', '<span class="mono">' + esc(r.hireDate || '—') + '</span>') +
+          row('账号状态', isDisabled(r)
+            ? '<span class="st disabled">已停用</span><span style="font-size:11.5px;color:var(--muted);margin-left:8px;">登录账号已停用,恢复后按当日出勤判定状态</span>'
+            : '<span class="st done">启用中</span><span style="font-size:11.5px;color:var(--muted);margin-left:8px;">登录账号可正常登录小程序</span>') +
+          row('人员状态', stBadge(r) + (isDisabled(r)
+            ? ''
+            : '<span style="font-size:11.5px;color:var(--muted);margin-left:8px;">按今日出勤自动判定</span>')) +
+        '</div>' +
+      '</div>' +
+      '<div class="d-section">' +
+        '<div class="d-h">驾驶证信息</div>' +
+        '<div class="d-grid">' +
+          row('驾驶证号', '<span class="mono">' + esc(r.licNo || '—') + '</span>') +
+          row('准驾车型', '<b>' + esc(r.licType || '—') + '</b>') +
+          row('初次领证', '<span class="mono">' + esc(r.licFirst || '—') + '</span>') +
+          row('有效期至', '<span class="mono">' + esc(r.licValid || '—') + '</span>') +
+          row('证件状态', licBadge(r) + (licTip ? '<span style="font-size:11.5px;color:var(--muted);margin-left:8px;">' + esc(licTip) + '</span>' : '')) +
+        '</div>' +
+      '</div>';
+    byId('detailMask').classList.add('show');
+    byId('drvModal').classList.add('show');
+  }
+  function closeDetail() {
+    byId('detailMask').classList.remove('show');
+    byId('drvModal').classList.remove('show');
+    detailId = null;
+  }
+  function onDetailEdit() {
+    var id = detailId;
+    closeDetail();
+    if (id) openEdit(id);
+  }
+
+  /* ============ 新增 / 编辑 ============ */
+  var editId = null;
+  /* 表单部门下拉:固定部门 + 存量数据中出现的部门,去重升序 */
+  function renderFormDeptOptions() {
+    var set = {};
+    ['综合办公室', '机关事务中心', '接待联络处'].forEach(function (d) { set[d] = 1; });
+    LIST.forEach(function (r) { if (r.dept) set[r.dept] = 1; });
+    var h = '<option value="">请选择部门</option>';
+    Object.keys(set).sort().forEach(function (d) {
+      h += '<option value="' + esc(d) + '">' + esc(d) + '</option>';
+    });
+    byId('fDeptIn').innerHTML = h;
+  }
+  function setForm(r) {
+    byId('fName').value = r ? r.name : '';
+    byId('fNo').value = r ? r.no : '';
+    byId('fNo').disabled = !!r;
+    byId('fPhone').value = r ? r.phone : '';
+    byId('fPhone').disabled = !!r;   /* 手机号 = 登录账号,创建后不可修改 */
+    byId('fPwd').value = r ? (r.pwd || '') : '';
+    renderFormDeptOptions();
+    byId('fDeptIn').value = r ? r.dept : '';
+    byId('fHire').value = r ? r.hireDate : '';
+    byId('fStatusIn').value = r ? ST_TXT[dispSt(r)] : '';
+    byId('fLicNo').value = r ? r.licNo : '';
+    byId('fLicType').value = r ? (r.licType || '') : '';
+    byId('fLicFirst').value = r ? r.licFirst : '';
+    byId('fLicValid').value = r ? r.licValid : '';
+    ['fName', 'fNo', 'fPhone', 'fPwd', 'fDeptIn', 'fLicNo', 'fLicType', 'fLicValid'].forEach(function (id2) {
+      byId(id2).classList.remove('err');
+    });
+    renderAvatarPreview(r ? (r.avatar || '') : '');
+  }
+  function openCreate() {
+    editId = null;
+    byId('formTitle').textContent = '新增驾驶员';
+    byId('formSub').textContent = '填写驾驶员基本信息与驾驶证信息,保存后立即生效';
+    setForm(null);
+    byId('formMask').classList.add('show');
+    byId('formModal').classList.add('show');
+  }
+  function openEdit(id) {
+    var r = findDriver(id);
+    if (!r) { toast('未找到该驾驶员'); return; }
+    editId = id;
+    byId('formTitle').textContent = '编辑驾驶员';
+    byId('formSub').textContent = '修改 ' + (r.name || '') + ' 的档案信息(工号、登录账号不可修改)' + (isDisabled(r) ? ' · 当前已停用' : '');
+    setForm(r);
+    byId('formMask').classList.add('show');
+    byId('formModal').classList.add('show');
+  }
+  function closeForm() {
+    byId('formMask').classList.remove('show');
+    byId('formModal').classList.remove('show');
+    editId = null;
+    pendingAvatar = '';
+    var f = byId('fAvFile');
+    if (f) f.value = '';
+  }
+  function markErr(id) {
+    byId(id).classList.add('err');
+  }
+  function saveForm() {
+    var name = (byId('fName').value || '').trim();
+    var no = (byId('fNo').value || '').trim();
+    var phone = (byId('fPhone').value || '').trim();
+    var pwd = (byId('fPwd').value || '').trim();
+    var dept = (byId('fDeptIn').value || '').trim();
+    var hire = byId('fHire').value;
+    var licNo = (byId('fLicNo').value || '').trim();
+    var licType = (byId('fLicType').value || '').trim();
+    var licFirst = byId('fLicFirst').value;
+    var licValid = byId('fLicValid').value;
+
+    ['fName', 'fNo', 'fPhone', 'fPwd', 'fDeptIn', 'fLicNo', 'fLicType', 'fLicValid'].forEach(function (id2) {
+      byId(id2).classList.remove('err');
+    });
+    var bad = false;
+    if (!name) { markErr('fName'); bad = true; }
+    if (!no) { markErr('fNo'); bad = true; }
+    if (!/^1\d{10}$/.test(phone)) { markErr('fPhone'); bad = true; }
+    if (!pwd || pwd.length < 6) { markErr('fPwd'); bad = true; }
+    if (!dept) { markErr('fDeptIn'); bad = true; }
+    if (!licNo) { markErr('fLicNo'); bad = true; }
+    if (!licType) { markErr('fLicType'); bad = true; }
+    if (!licValid) { markErr('fLicValid'); bad = true; }
+    if (bad) { toast('请检查标红项:必填字段、手机号格式或密码至少 6 位'); return; }
+    if (!editId) {
+      var dupNo = LIST.some(function (x) { return x.no === no; });
+      if (dupNo) { markErr('fNo'); toast('工号已存在: ' + no); return; }
+      var dupPhone = LIST.some(function (x) { return x.phone === phone; });
+      if (dupPhone) { markErr('fPhone'); toast('该手机号已注册为登录账号: ' + phone); return; }
+    }
+    var dupLic = LIST.some(function (x) { return x.licNo === licNo && x.id !== editId; });
+    if (dupLic) { markErr('fLicNo'); toast('驾驶证号已存在'); return; }
+
+    if (editId) {
+      var r = findDriver(editId);
+      if (!r) { toast('未找到该驾驶员'); return; }
+      r.name = name; /* 手机号 = 登录账号,创建后不可修改,编辑不更新 r.phone */
+      r.pwd = pwd; r.dept = dept;
+      r.hireDate = hire; /* 人员状态不落库,由当日出勤推导 */
+      r.licNo = licNo; r.licType = licType; r.licFirst = licFirst; r.licValid = licValid;
+      r.avatar = pendingAvatar || r.avatar || avatarSVG(r.name, r.dept);
+      saveJSON(KEY, LIST);
+      toast('驾驶员信息已更新');
+    } else {
+      var maxSeq = 0;
+      LIST.forEach(function (x) {
+        var m = /^D(\d+)$/.exec(x.id || '');
+        if (m) maxSeq = Math.max(maxSeq, parseInt(m[1], 10));
+      });
+      var nr = {
+        id: 'D' + String(maxSeq + 1).padStart(3, '0'),
+        name: name, no: no, phone: phone, pwd: pwd, dept: dept, enabled: true,
+        hireDate: hire, status: stOf({ name: name, no: no }),
+        licNo: licNo, licType: licType, licFirst: licFirst, licValid: licValid,
+        avatar: pendingAvatar || avatarSVG(name, dept)
+      };
+      LIST.push(nr);
+      saveJSON(KEY, LIST);
+      toast('驾驶员已新增');
+    }
+    closeForm();
+    renderDeptOptions();
+    refresh();
+  }
+
+  /* ============ 停用 / 启用 ============ */
+  var delId = null;
+  function askToggle(id) {
+    var r = findDriver(id);
+    if (!r) { toast('未找到该驾驶员'); return; }
+    delId = id;
+    var dis = isDisabled(r);
+    byId('delTitle').textContent = dis ? '启用这名驾驶员?' : '停用这名驾驶员?';
+    byId('delDesc').textContent = dis
+      ? '启用后其登录账号恢复登录驾驶员端小程序,人员状态按当日出勤记录自动判定'
+      : '停用后其登录账号将无法登录驾驶员端小程序,历史派单 / 工作记录不受影响,可随时重新启用';
+    byId('delYes').textContent = dis ? '确认启用' : '确认停用';
+    byId('delYes').style.background = dis
+      ? 'linear-gradient(135deg,#0A5FD4,#014DB2)'
+      : 'linear-gradient(135deg,#F87171,#DC2626)';
+    byId('delYes').style.boxShadow = dis
+      ? '0 6px 14px rgba(1,77,178,.28)'
+      : '0 6px 14px rgba(220,38,38,.25)';
+    byId('delPreview').innerHTML =
+      row('姓名 / 工号', esc(r.name || '—') + ' · <span class="mono">' + esc(r.no || '—') + '</span>') +
+      row('部门', esc(r.dept || '—')) +
+      row('驾驶证号', '<span class="mono">' + esc(r.licNo || '—') + '</span>') +
+      row('当前状态', '<span class="st ' + dispSt(r) + '">' + ST_TXT[dispSt(r)] + '</span>');
+    byId('delMask').classList.add('show');
+    byId('delModal').classList.add('show');
+  }
+  function closeToggle() {
+    byId('delMask').classList.remove('show');
+    byId('delModal').classList.remove('show');
+    delId = null;
+  }
+  function doToggle() {
+    if (!delId) return;
+    var r = findDriver(delId);
+    if (!r) { closeToggle(); return; }
+    var dis = isDisabled(r);
+    r.enabled = dis ? true : false;
+    saveJSON(KEY, LIST);
+    toast(dis ? '驾驶员已启用' : '驾驶员已停用');
+    closeToggle();
+    refresh();
+  }
+
+  /* ============ Esc 关闭(优先级:停用启用 > 表单 > 详情) ============ */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (byId('delModal').classList.contains('show')) closeToggle();
+    else if (byId('formModal').classList.contains('show')) closeForm();
+    else if (byId('drvModal').classList.contains('show')) closeDetail();
+  });
+
+  /* ============ 筛选联动 ============ */
+  ['fKeyword', 'fDept', 'fStatus', 'fLic'].forEach(function (id) {
+    byId(id).addEventListener('input', render);
+    byId(id).addEventListener('change', render);
+  });
+
+  /* ============ 30s 重算人员状态(当日出勤变化时自动流转) ============ */
+  setInterval(function () {
+    ATT_TODAY = attOfToday();
+    syncStatus();
+    refresh();
+  }, 30000);
+
+  /* ============ Toast ============ */
+  var toastTimer = null;
+  function toast(msg) {
+    var el = byId('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1800);
+  }
+
+  function logout() {
+    if (!confirm('确定要登出吗?')) return;
+    localStorage.removeItem('zp_admin_logged');
+    location.replace('login.html');
+  }
+
+  /* ============ 预加载渐隐 ============ */
+  setTimeout(function () { byId('preloader').classList.add('gone'); }, 220);
+
+  /* ============ 启动 ============ */
+  renderDeptOptions();
+  refresh();
+</script>
+</body>
+</html>
