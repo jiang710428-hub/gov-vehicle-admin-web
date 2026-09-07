@@ -1324,12 +1324,11 @@
       '<div class="circles">' + posChips(r.chkExPos) + '</div>' +
       '<div style="height:4px"></div>' +
       srow('环视检查结果', '<span class="st sg-' + (cirAbn ? 'bad' : 'ok') + '">' + (cirAbn ? '存在异常' : '全部正常') + '</span>') +
-      (!cirAbn ? '<span class="sec-lab">环视照片（6 张 · 一方位一帧）</span><div class="shots">' + posShots(r.chkExPos) + '</div>' : '');
+      '<span class="sec-lab">环视照片（6 张 · 一方位一帧）</span><div class="shots">' + posShots(r.chkExPos) + '</div>';
     if (cirAbn) {
       s3 += warnBox('360° 环视检查异常',
         srow('异常方位', '<b style="color:var(--red)">' + esc(r.chkExPos) + '</b>') +
-        srow('异常分类', esc(r.chkExCat || '—')) +
-        '<span class="sec-lab">异常照片</span><div class="shots">' + shotBad(r.chkExPhotos) + '</div>',
+        srow('异常分类', esc(r.chkExCat || '—')),
         r.chkExDesc);
     }
     s3 += '<span class="sec-lab">重点检查项目（' + MAJOR + '）</span>' +
@@ -1381,12 +1380,11 @@
       '<div class="circles">' + posChips(r.rtExPos) + '</div>' +
       '<div style="height:4px"></div>' +
       srow('还车检查结果', '<span class="st sg-' + (rtBad ? 'bad' : 'ok') + '">' + (rtBad ? '异常' : '正常') + '</span>') +
-      (!rtBad ? '<span class="sec-lab">还车环视照片（6 张 · 一方位一帧）</span><div class="shots">' + posShots(r.rtExPos) + '</div>' : '');
+      '<span class="sec-lab">还车环视照片（6 张 · 一方位一帧）</span><div class="shots">' + posShots(r.rtExPos) + '</div>';
     if (rtBad) {
       s7 += warnBox('还车 360° 环视检查异常',
         srow('异常方位', '<b style="color:var(--red)">' + esc(r.rtExPos || '—') + '</b>') +
-        srow('异常分类', esc(r.rtExCat || '—')) +
-        '<span class="sec-lab">异常照片</span><div class="shots">' + shotBad(r.rtExPhotos || 1) + '</div>',
+        srow('异常分类', esc(r.rtExCat || '—')),
         r.rtExDesc);
     }
 
