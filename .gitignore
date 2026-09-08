@@ -1,4 +1,7 @@
 _qa_*.js
 _build_*.py
+*.bak
+*.bak-*
+.workbuddy-backup-*
 .DS_Store
 Thumbs.db

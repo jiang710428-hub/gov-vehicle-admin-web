@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>智慧新城公务用车管理平台 · 维修保养</title>
+<title>宁公车管理平台 · 维修保养</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -846,6 +846,26 @@
 .vehicle-photo-card .empty-photo { padding: 24px; text-align: center; color: var(--muted); font-size: 13px; }
 
 </style>
+
+  <style>
+
+  /* ============ 登出确认弹窗（自定义，规避浏览器 confirm 拦截） ============ */
+  .lgout-mask { position: fixed; inset: 0; background: rgba(10,22,40,.52); backdrop-filter: blur(3px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .22s; }
+  .lgout-mask.show { opacity: 1; pointer-events: auto; }
+  .lgout-box { width: 340px; max-width: calc(100vw - 48px); background: #fff; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,22,69,.28); padding: 30px 26px 24px; text-align: center; animation: lgIn .22s cubic-bezier(.2,.7,.3,1); }
+  @keyframes lgIn { from { transform: translateY(14px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+  .lgout-ic { width: 56px; height: 56px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .lgout-t { font-size: 16px; font-weight: 700; color: #0A1628; margin-bottom: 6px; }
+  .lgout-s { font-size: 12.5px; color: #6B7280; margin-bottom: 22px; line-height: 1.7; }
+  .lgout-ops { display: flex; gap: 12px; }
+  .lgout-ops button { flex: 1; height: 44px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: transform .12s, opacity .12s; font-family: inherit; }
+  .lgout-ops button:active { transform: scale(.98); }
+  .lgout-no { background: #F5F7FA; color: #6B7280; }
+  .lgout-no:hover { background: #EDF1F5; }
+  .lgout-yes { background: #DC2626; color: #fff; }
+  .lgout-yes:hover { background: #B91C1C; }
+  </style>
+
 </head><body>
   <div class="preloader" id="preloader">
     <div class="ring"></div>
@@ -867,7 +887,7 @@
           </svg>
         </div>
         <div>
-          <div class="t1">公务用车管理</div>
+          <div class="t1">宁公车管理平台</div>
           <div class="t2">ADMIN CONSOLE</div>
         </div>
       </div>
@@ -993,32 +1013,32 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v6M12 16.5v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
               </div>
               <div class="num"><span id="kpiMile">0</span><span class="unit">条</span></div>
-              <div class="lbl">里程异常</div>
-              <div class="sub">前次结束里程 → 后次起始里程 相差 &gt; 50km</div>
+              <div class="lab">里程异常</div>
+              <div class="delta">前次结束里程 → 后次起始里程 相差 &gt; 50km</div>
             </div>
             <div class="kpi red">
               <div class="ic-deco">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
               </div>
               <div class="num"><span id="kpiTake">0</span><span class="unit">条</span></div>
-              <div class="lbl">接车异常</div>
-              <div class="sub">前次车辆检查 360°环视 正常 · 后次结束里程 360°环视 异常</div>
+              <div class="lab">接车异常</div>
+              <div class="delta">前次车辆检查 360°环视 正常 · 后次结束里程 360°环视 异常</div>
             </div>
             <div class="kpi amber">
               <div class="ic-deco">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l3-7 4 14 3-7h4" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
               </div>
               <div class="num"><span id="kpiTotal">0</span><span class="unit">条</span></div>
-              <div class="lbl">总预警</div>
-              <div class="sub">两类预警合计</div>
+              <div class="lab">总预警</div>
+              <div class="delta">两类预警合计</div>
             </div>
             <div class="kpi blue">
               <div class="ic-deco">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="7.5" cy="17" r="1.4" stroke="currentColor" stroke-width="1.7"/><circle cx="16.5" cy="17" r="1.4" stroke="currentColor" stroke-width="1.7"/><path d="M3 11h18" stroke="currentColor" stroke-width="1.7"/></svg>
               </div>
               <div class="num"><span id="kpiPlates">0</span><span class="unit">辆</span></div>
-              <div class="lbl">涉及车辆</div>
-              <div class="sub">出现预警的车牌去重数</div>
+              <div class="lab">涉及车辆</div>
+              <div class="delta">出现预警的车牌去重数</div>
             </div>
           </div>
 
@@ -1144,11 +1164,7 @@
     var el = byId('clockText'); if (el) el.textContent = s;
   }
   setInterval(tick, 1000); tick();
-  function logout() {
-    if (!confirm('确定要登出吗?')) return;
-    localStorage.removeItem('zp_admin_logged');
-    location.replace('login.html');
-  }
+  function logout() { showLogoutModal(); }
   setTimeout(function () { byId('preloader').classList.add('gone'); }, 220);
 
   /* 图片压缩(canvas 800x600 jpeg .82) */
@@ -1479,21 +1495,22 @@
       } else {
         fields += '<div class="k">起始里程</div><div class="v mono">' + (t.sKm || 0).toLocaleString() + ' km</div>';
       }
-      fields += '<div class="k">行驶里程</div><div class="v mono">' + ((t.eKm || 0) - (t.sKm || 0)).toLocaleString() + ' km</div>';
       return '<div class="compare-card">' +
         '<div class="ct">' + tag +
           '<span class="ct-date">' + esc(t.date || '—') + '</span>' +
           '<span class="ct-no">' + esc(t.no || '—') + '</span>' +
         '</div>' +
         '<div class="kv">' + fields + '</div>' +
-        buildSurBlock(w.plate, 'chk', t) +
-        buildSurBlock(w.plate, 'rt', t) +
+        /* 仅展示两次记录衔接点的车况检查：前次记录=还车(结束里程步骤)、后次记录=接车(车辆检查步骤) */
+        (side === 'prev'
+          ? buildSurBlock(w.plate, 'rt', t)
+          : buildSurBlock(w.plate, 'chk', t)) +
       '</div>';
     };
     return '<div class="warn-summary"><span class="rule">预警规则</span> · ' + rule + '</div>' +
       '<div style="font-size:11px;color:var(--muted);margin:10px 0 0;letter-spacing:.5px">' +
         '点击任一环视图可全屏预览该工作记录的 6 张 360° 环视照片 · ' +
-        '前次工作记录 12 张 + 后次工作记录 12 张 = 本预警合计 <b style="color:var(--primary)">24 张</b>' +
+        '聚焦两次记录衔接点车况：前次工作记录「还车 360° 环视」6 张 + 后次工作记录「接车 360° 环视」6 张 = 本预警合计 <b style="color:var(--primary)">12 张</b>' +
       '</div>' +
       '<div class="compare-grid">' +
         rowHtml(w.prev, '前次工作记录', 'prev') +
@@ -1629,4 +1646,23 @@
   renderKPI(); render();
 
   </script>
+
+  <!-- ============ 登出确认弹窗 ============ -->
+  <div class="lgout-mask" id="lgoutMask" onclick="lgoutCancel()">
+    <div class="lgout-box" onclick="event.stopPropagation()">
+      <div class="lgout-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="lgout-t">确认退出登录？</div>
+      <div class="lgout-s">退出后需要重新登录才能继续使用管理后台</div>
+      <div class="lgout-ops">
+        <button class="lgout-no" onclick="lgoutCancel()">取 消</button>
+        <button class="lgout-yes" onclick="lgoutConfirm()">退 出</button>
+      </div>
+    </div>
+  </div>
+  <script>
+  function lgoutCancel() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); }
+  function lgoutConfirm() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); localStorage.removeItem('zp_admin_logged'); location.replace('login.html'); }
+  function showLogoutModal() { var m = document.getElementById('lgoutMask'); if (m) m.classList.add('show'); }
+  </script>
+
 </body></html>

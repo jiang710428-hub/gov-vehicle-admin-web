@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>智慧新城公务用车管理平台 · 车辆照片档案</title>
+<title>宁公车管理平台 · 车辆照片档案</title>
 <style>
   /* ============ 全局/壳层 ============ */
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -106,22 +106,40 @@
   .btn-ghost{height:36px;padding:0 14px;border-radius:9px;border:1.5px solid var(--line-2);background:#fff;color:var(--sub);font-size:12.5px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s;}
   .btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
 
-  /* 车辆卡片 */
-  .photo-vehicle-grid{display:flex;flex-direction:column;gap:18px;}
-  .veh-photo-card{background:#fff;border-radius:14px;border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,40,80,.04);overflow:hidden;}
-  .vp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(180deg,#F8FBFF 0%,#fff 100%);border-bottom:1px solid var(--line);}
-  .vp-head .vp-plate{font-family:"Cascadia Code",Consolas,monospace;font-size:14px;font-weight:800;color:#0A1628;background:#0A1628;color:#fff;padding:5px 11px;border-radius:6px;display:inline-block;letter-spacing:1.2px;}
-  .vp-head .vp-info{font-size:12.5px;color:var(--sub);margin-top:8px;}
-  .vp-head .vp-info b{color:var(--text);font-weight:700;margin-right:6px;}
-  .vp-head .vp-count{font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-bg);border-radius:100px;padding:5px 13px;}
-  .vp-head .vp-count.zero{color:var(--muted);background:#F2F4F8;}
+  /* ============ 列表（与全站其它模块一致） ============ */
+  .list-card{padding:0;overflow:hidden;}
+  .list-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);}
+  .list-head .lh-t{font-size:14.5px;font-weight:800;letter-spacing:.5px;}
+  .list-head .lh-meta{font-size:12.5px;color:var(--muted);line-height:1.6;}
+  .list-head .lh-meta b{color:var(--primary);font-weight:800;}
+  .table-wrap{overflow-x:auto;}
+  table.dt{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;}
+  .dt thead th{background:#F7F9FC;color:var(--sub);font-weight:700;font-size:11.5px;letter-spacing:.5px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .dt tbody td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--text);vertical-align:middle;}
+  .dt tbody tr{transition:background .12s;cursor:pointer;}
+  .dt tbody tr:hover{background:#F8FBFF;}
+  .dt tbody tr:last-child td{border-bottom:none;}
+  .dt .cell-pl{display:inline-block;background:#0A1628;color:#fff;font-size:11.5px;font-weight:800;letter-spacing:1.2px;padding:3px 8px;border-radius:5px;font-family:"Cascadia Code",Consolas,monospace;white-space:nowrap;}
+  .dt .cell-brand{font-size:11.5px;font-weight:700;color:var(--text);background:#F4F6FB;border:1px solid var(--line-2);border-radius:6px;padding:2px 7px;display:inline-block;white-space:nowrap;}
+  .dt .cell-model{font-size:11.5px;color:var(--sub);margin-top:3px;white-space:nowrap;}
+  .dt .pr-no{font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px;font-weight:700;color:var(--primary-deep);white-space:nowrap;}
+  .dt .pr-no.cur{background:var(--primary-bg);padding:1px 5px;border-radius:4px;}
+  .dt .pr-d{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap;}
+  .rx-chips{display:flex;flex-direction:column;gap:5px;min-width:120px;}
+  .rx-chip{display:inline-flex;align-items:center;gap:4px;width:fit-content;max-width:190px;font-size:10.5px;font-weight:700;border-radius:100px;padding:2.5px 9px;white-space:nowrap;letter-spacing:.2px;line-height:1.5;}
+  .rx-chip .cw{font-weight:800;margin-right:1px;}
+  .rx-chip.ok{color:#047857;background:#ECFDF5;border:1px solid #A7F3D0;}
+  .rx-chip.bad{color:#B91C1C;background:#FEF2F2;border:1px solid #FECACA;}
+  .rx-chip .ax{font-family:"Cascadia Code",Consolas,monospace;font-weight:800;}
+  .op-col{display:flex;gap:6px;}
+  .op-btn{border:none;background:none;cursor:pointer;font-size:12px;font-weight:600;padding:5px 9px;border-radius:7px;display:inline-flex;align-items:center;gap:4px;transition:background .15s,transform .12s;white-space:nowrap;}
+  .op-btn:hover{transform:translateY(-1px);}
+  .op-btn.view{color:var(--primary);background:var(--primary-bg);}
+  .op-btn.view:hover{background:#DCEBFD;}
 
-  /* unit 列表 */
-  .unit-list{display:flex;flex-direction:column;}
-  .unit-card{padding:18px 20px;border-top:1px dashed var(--line-2);}
-  .unit-card:first-child{border-top:none;}
-  .unit-meta{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
-  .unit-meta .um-side{display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:#F7F9FC;border:1px solid var(--line);border-radius:9px;padding:8px 11px;}
+  /* 记录对信息条（详情弹窗内 上次 → 本次） */
+  .unit-meta{display:flex;align-items:stretch;gap:12px;margin-bottom:16px;}
+  .unit-meta .um-side{display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:#F7F9FC;border:1px solid var(--line);border-radius:10px;padding:9px 12px;flex-wrap:wrap;}
   .unit-meta .um-side.cur{background:var(--primary-bg);border-color:#C9DCF6;}
   .unit-meta .um-side .tag{font-size:10.5px;font-weight:700;color:var(--sub);background:#fff;border:1px solid var(--line-2);border-radius:5px;padding:2px 7px;letter-spacing:.5px;white-space:nowrap;}
   .unit-meta .um-side.cur .tag{background:#fff;color:var(--primary);border-color:#BFD8F6;}
@@ -132,94 +150,205 @@
   .unit-meta .um-flag{font-size:10.5px;font-weight:800;border-radius:100px;padding:2px 8px;white-space:nowrap;}
   .unit-meta .um-flag.ok{color:var(--green-dark);background:var(--green-bg);border:1px solid #A7F3D0;}
   .unit-meta .um-flag.bad{color:var(--red-dark);background:var(--red-bg);border:1px solid #FECACA;}
-  .um-arrow{color:var(--muted);font-size:16px;font-weight:700;flex-shrink:0;}
+  .um-arrow{color:#B6C3D9;font-size:17px;font-weight:700;flex-shrink:0;display:flex;align-items:center;}
 
-  /* 对比组 */
-  .compare-group{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .compare-pair{background:#FAFBFD;border:1px solid var(--line);border-radius:12px;padding:14px;}
-  .cp-title{font-size:12.5px;font-weight:800;color:var(--sub);margin-bottom:10px;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
-  .cp-title .step{background:var(--primary);color:#fff;font-size:10.5px;font-weight:800;border-radius:5px;padding:2px 7px;letter-spacing:.5px;}
-  .cp-title .desc{font-size:11px;color:var(--muted);font-weight:500;}
-  .cp-photos{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:center;}
-  .cp-photo{position:relative;border-radius:9px;overflow:hidden;cursor:zoom-in;border:1.5px solid var(--line);background:#F4F6FA;aspect-ratio:4/3;}
-  .cp-photo img{width:100%;height:100%;object-fit:cover;display:block;}
-  .cp-photo .cp-stamp{position:absolute;left:6px;top:6px;background:rgba(10,22,40,.72);color:#fff;font-size:10px;font-weight:700;border-radius:4px;padding:2px 6px;letter-spacing:.5px;}
-  .cp-photo.cur .cp-stamp{background:var(--primary);}
-  .cp-photo .cp-result{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:800;border-radius:100px;padding:2px 9px;}
-  .cp-photo .cp-result.ok{color:var(--green-dark);background:rgba(236,253,245,.95);}
-  .cp-photo .cp-result.bad{color:var(--red-dark);background:rgba(254,242,242,.95);border:1px solid #FECACA;}
-  .cp-arrow{font-size:18px;color:var(--muted);font-weight:700;text-align:center;}
+  /* ============ 详情弹窗（照片 24 张放详情查看） ============ */
+  .modal-mask{position:fixed;inset:0;background:rgba(7,15,30,.52);opacity:0;pointer-events:none;transition:opacity .25s;z-index:900;}
+  .modal-mask.show{opacity:1;pointer-events:auto;}
+  .modal{position:fixed;left:50%;top:50%;z-index:901;width:420px;max-width:calc(100% - 40px);background:#fff;border-radius:16px;transform:translate(-50%,-45%) scale(.96);opacity:0;pointer-events:none;transition:all .25s;padding:22px 24px 20px;box-shadow:0 24px 60px rgba(7,15,30,.25);}
+  .modal.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+  .modal.detail{width:1120px;max-width:calc(100% - 40px);padding:0;text-align:left;max-height:calc(100vh - 70px);display:flex;flex-direction:column;}
+  .detail-head{padding:16px 22px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-shrink:0;}
+  .detail-head .dh-l .dh-t{font-size:15.5px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .detail-head .dh-l .dh-no{font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px;color:#fff;font-weight:700;background:#0A1628;padding:2.5px 8px;border-radius:5px;letter-spacing:1px;}
+  .detail-head .dh-l .dh-s{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.6;}
+  .detail-close{width:32px;height:32px;border:none;background:#F4F6FB;color:var(--sub);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0;}
+  .detail-close:hover{background:#E2E7EE;color:var(--text);}
+  .detail-body{padding:16px 22px 18px;overflow-y:auto;flex:1;background:#F7F9FC;}
+  .detail-body::-webkit-scrollbar{width:6px;}
+  .detail-body::-webkit-scrollbar-thumb{background:#D6DEEC;border-radius:3px;}
+  .detail-body::-webkit-scrollbar-thumb:hover{background:#B6C3D9;}
+  .detail-foot{border-top:1px solid var(--line);padding:12px 22px;display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;background:#FBFCFE;border-radius:0 0 16px 16px;}
+  .detail-foot .m-no{flex:0 0 auto;width:110px;height:38px;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:700;letter-spacing:1px;transition:transform .15s,border-color .15s;border:1.5px solid var(--line-2);background:#fff;color:var(--sub);}
+  .detail-foot .m-no:hover{border-color:var(--primary);color:var(--primary);}
+  .detail-tip{font-size:11px;color:var(--muted);text-align:right;padding:2px 2px 0;letter-spacing:.3px;}
 
-  .cp-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-2);}
-  .cp-foot .when{font-size:11.5px;color:var(--sub);}
-  .cp-foot .when b{color:var(--text);font-weight:700;font-family:"Cascadia Code",Consolas,monospace;}
-  .cp-foot .pos{font-size:11px;color:var(--muted);}
+  /* 360° 环视照片档案：每条工作记录 12 张（车辆检查 6 + 结束里程 6），相邻两次共 24 张 */
+  .ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .ph-blk{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
+  .ph-blk .ph-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;background:#F8FAFD;border-bottom:1px solid var(--line);}
+  .ph-blk .ph-tag{font-size:10px;font-weight:800;padding:2.5px 9px;border-radius:100px;letter-spacing:.5px;white-space:nowrap;}
+  .ph-blk.prev .ph-tag{color:#475569;background:#EEF1F5;border:1px solid #E2E6EC;}
+  .ph-blk.cur .ph-tag{color:#fff;background:linear-gradient(135deg,#0A5FD4,#014DB2);}
+  .ph-blk .ph-nm{font-size:12.5px;font-weight:800;color:var(--text);white-space:nowrap;}
+  .ph-blk .ph-res{font-size:10.5px;font-weight:800;padding:2.5px 10px;border-radius:100px;margin-left:auto;white-space:nowrap;}
+  .ph-blk .ph-res.ok{color:var(--green-dark);background:#F0FDF6;border:1px solid #A7F3D0;}
+  .ph-blk .ph-res.bad{color:var(--red-dark);background:var(--red-bg);border:1px solid #FECACA;}
+  .ph-blk .ph-info{font-size:10.5px;color:var(--muted);padding:6px 12px 2px;line-height:1.65;letter-spacing:.2px;}
+  .ph-blk .ph-info .gzn{font-family:"Cascadia Code",Consolas,monospace;font-weight:700;color:var(--primary-deep);background:#E8EEF8;padding:0 5px;border-radius:4px;}
+  .ph-blk .ph-info .expos{color:#B91C1C;font-weight:800;}
+  .ph-blk .ph-body{padding:8px 12px 12px;}
+  .ph-shots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;}
+  .ph-tile{position:relative;aspect-ratio:4/3;border-radius:8px;overflow:hidden;cursor:zoom-in;border:1px solid var(--line);background:#F4F6FA;}
+  .ph-tile img{width:100%;height:100%;object-fit:cover;display:block;}
+  .ph-tile .pos{position:absolute;left:4px;bottom:4px;font-size:9.5px;font-weight:800;color:#fff;background:rgba(10,22,40,.72);padding:2px 6px;border-radius:3px;letter-spacing:.5px;}
+  .ph-tile .pos.bad{background:var(--red);}
+  .ph-tile .no{position:absolute;right:4px;top:4px;font-family:"Cascadia Code",Consolas,monospace;font-size:9.5px;font-weight:800;color:#fff;background:rgba(1,77,178,.85);padding:1.5px 5px;border-radius:3px;letter-spacing:.5px;}
+  .ph-tile .st{position:absolute;left:4px;top:4px;font-size:9px;font-weight:800;padding:1.5px 5px;border-radius:3px;letter-spacing:.5px;}
+  .ph-tile .st.ok{color:#047857;background:#D1FAE5;}
+  .ph-tile .st.bad{color:#B91C1C;background:#FEE2E2;}
+  .ph-tile:hover{box-shadow:0 4px 12px rgba(15,42,86,.18);transform:translateY(-1px);transition:all .15s;}
+  .ph-blk .ph-total{font-size:10px;color:#8A94A6;font-weight:600;}
 
   /* 空 */
   .empty-state{padding:48px 24px;text-align:center;color:var(--muted);background:#fff;border-radius:14px;border:1px dashed var(--line-2);}
   .empty-state .empty-t{font-size:13.5px;font-weight:600;margin-top:10px;color:var(--sub);}
   .empty-state .empty-s{font-size:11.5px;color:var(--muted);margin-top:4px;}
 
-  /* 详情/大图 */
+  /* 单张 360° 环视照片放大 */
   .lb-mask{position:fixed;inset:0;z-index:10000;background:rgba(10,22,40,.86);display:none;align-items:center;justify-content:center;}
-  .lb-mask.show{display:flex;flex-direction:column;}
-  .lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:32px;max-width:1180px;width:92%;max-height:88vh;}
-  .lb-cell{background:#fff;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
-  .lb-cell .lb-ht{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);}
-  .lb-cell .lb-ht .nm{font-weight:800;color:var(--text);font-size:13.5px;}
-  .lb-cell .lb-ht .no{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-bg);padding:2px 8px;border-radius:5px;}
-  .lb-cell .lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:#0A1628;min-height:240px;}
-  .lb-cell .lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;}
-  .lb-cell .lb-ft{padding:10px 16px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);display:flex;justify-content:space-between;}
-  .lb-cell .lb-ft .res{font-weight:800;}
-  .lb-cell .lb-ft .res.ok{color:var(--green-dark);}
-  .lb-cell .lb-ft .res.bad{color:var(--red-dark);}
-  .lb-cap{padding:14px 32px 0;color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px;text-align:center;}
-  .lb-close{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .lb-mask.show{display:flex;}
+  .lb-stage{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:920px;width:94%;}
+  .lb-big{border-radius:14px;overflow:hidden;background:#0A1628;box-shadow:0 20px 60px rgba(0,0,0,.45);}
+  .lb-big img{display:block;max-width:100%;max-height:76vh;object-fit:contain;}
+  .lb-cap{color:#D7DFEA;font-size:13px;font-weight:600;letter-spacing:.4px;text-align:center;line-height:1.7;}
+  .lb-cap b{color:#fff;}
+  .lb-close{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10001;}
   .lb-close:hover{background:rgba(255,255,255,.25);}
 
   /* toast */
   .toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:rgba(10,22,40,.92);color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25;z-index:10001;pointer-events:none;}
   .toast.show{opacity:1;}
 </style>
+
+  <style>
+
+  /* ============ 登出确认弹窗（自定义，规避浏览器 confirm 拦截） ============ */
+  .lgout-mask { position: fixed; inset: 0; background: rgba(10,22,40,.52); backdrop-filter: blur(3px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .22s; }
+  .lgout-mask.show { opacity: 1; pointer-events: auto; }
+  .lgout-box { width: 340px; max-width: calc(100vw - 48px); background: #fff; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,22,69,.28); padding: 30px 26px 24px; text-align: center; animation: lgIn .22s cubic-bezier(.2,.7,.3,1); }
+  @keyframes lgIn { from { transform: translateY(14px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+  .lgout-ic { width: 56px; height: 56px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .lgout-t { font-size: 16px; font-weight: 700; color: #0A1628; margin-bottom: 6px; }
+  .lgout-s { font-size: 12.5px; color: #6B7280; margin-bottom: 22px; line-height: 1.7; }
+  .lgout-ops { display: flex; gap: 12px; }
+  .lgout-ops button { flex: 1; height: 44px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: transform .12s, opacity .12s; font-family: inherit; }
+  .lgout-ops button:active { transform: scale(.98); }
+  .lgout-no { background: #F5F7FA; color: #6B7280; }
+  .lgout-no:hover { background: #EDF1F5; }
+  .lgout-yes { background: #DC2626; color: #fff; }
+  .lgout-yes:hover { background: #B91C1C; }
+  </style>
+
 </head>
 <body>
   <div class="preloader" id="preloader"><div class="ring"></div><div class="txt">LOADING…</div></div>
   <div class="admin">
     <aside class="sidebar">
       <div class="sb-logo">
-        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 11l1.5-4a3 3 0 012.8-2h7.4a3 3 0 012.8 2L21 11M5 11h14M5 11v6h2m12-6v6h-2m-10 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm12 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div><div class="t1">智慧新城公务用车</div><div class="t2">ADMIN CONSOLE</div></div>
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 44 44" fill="none">
+            <path d="M8.5 27L11.2 20.9C11.9 19.3 13.4 18.3 15.1 18.3H28.9C30.6 18.3 32.1 19.3 32.8 20.9L35.5 27" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14.5 13.7C15.1 12.2 16.5 11.2 18.1 11.2H25.9C27.5 11.2 28.9 12.2 29.5 13.7L31.2 18H12.8L14.5 13.7Z" stroke="#FFFFFF" stroke-width="2.4" stroke-linejoin="round"/>
+            <rect x="10.5" y="27" width="23" height="4" rx="2" fill="#FFFFFF"/>
+            <circle cx="15.5" cy="28.5" r="2.4" fill="#014DB2"/>
+            <circle cx="28.5" cy="28.5" r="2.4" fill="#014DB2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="t1">宁公车管理平台</div>
+          <div class="t2">ADMIN CONSOLE</div>
+        </div>
       </div>
+
       <nav class="sb-nav">
         <div class="nav-group">
           <div class="gt">运营</div>
-          <div class="nav-item" onclick="go('index.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>工作台</span></div>
-          <div class="nav-item" onclick="go('dispatch.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>派单</span></div>
-          <div class="nav-item" onclick="go('attendance.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>出勤</span></div>
-          <div class="nav-item" onclick="go('worklog.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M5 4h11l3 3v13H5V4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>工作记录</span></div>
+          <a class="nav-item" href="index.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>工作台</span>
+          </a>
+          <a class="nav-item" href="dispatch.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span>派单管理</span>
+          </a>
+          <a class="nav-item" href="attendance.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3.2 2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>出勤记录</span>
+          </a>
+          <a class="nav-item" href="worklog.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M5 4h11l3 3v13H5V4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 11h8M8 15h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>工作记录</span>
+          </a>
         </div>
+
         <div class="nav-group">
           <div class="gt">资源</div>
-          <div class="nav-item" onclick="go('vehicles.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M5 11l1.5-4a3 3 0 012.8-2h7.4a3 3 0 012.8 2L21 11v6h-2a1.5 1.5 0 11-3 0H8a1.5 1.5 0 11-3 0H5v-6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>车辆</span></div>
-          <div class="nav-item" onclick="go('drivers.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M5 21c0-3.5 3-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>驾驶员</span></div>
-          <div class="nav-item" onclick="go('fuel.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 21V5a2 2 0 012-2h7a2 2 0 012 2v16M4 21h11M4 21v-5h11v5M14 9h3a2 2 0 012 2v3a2 2 0 002 2v0" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg><span>加油记录</span></div>
-          <div class="nav-item" onclick="go('maintain.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4l-6 6a2 2 0 102.8 2.8l6-6a4 4 0 005.4-5.4l-2.5 2.5-2.4-2.4 2.5-2.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>维修保养</span></div>
+          <a class="nav-item" href="vehicles.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 14l1.5-4.5C5.8 8.5 6.7 8 7.6 8h8.8c.9 0 1.8.5 2.1 1.5L20 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="14" width="18" height="4" rx="1" stroke="currentColor" stroke-width="1.6"/><circle cx="7.5" cy="18.5" r="1.5" fill="currentColor"/><circle cx="16.5" cy="18.5" r="1.5" fill="currentColor"/></svg>
+            <span>车辆管理</span>
+</a>
+          <a class="nav-item" href="drivers.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>驾驶员</span>
+          </a>
+          <a class="nav-item" href="fuel.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 21V5a2 2 0 012-2h6a2 2 0 012 2v16M4 21h10M4 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8l2.5-2.5L21 8l-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>加油记录</span>
+          </a>
+          <a class="nav-item" href="maintain.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4l-6 6 2.5 2.5 6-6a4 4 0 005.4-5.4l-2 2-2-2 2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>维修保养</span>
+          </a>
         </div>
+
         <div class="nav-group">
           <div class="gt">合规</div>
-          <div class="nav-item" onclick="go('warning.html')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>系统预警</span></div>
-          <div class="nav-item active"><svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="9" cy="11" r="1.8" stroke="currentColor" stroke-width="1.7"/><path d="M21 17l-5-5-7 7" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>车辆照片档案</span></div>
-          <div class="nav-item" onclick="toast('异常档案暂未开放')"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 8v5M12 16v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/></svg><span>异常档案</span></div>
+          <a class="nav-item" href="insurance.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 3v5c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>保险信息</span>
+          </a>
+          <a class="nav-item" href="annual.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>年检信息</span>
+          </a>
+          <a class="nav-item" href="abnormal.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 17.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>异常档案</span>
+          </a>
+          <a class="nav-item" href="warning.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>系统预警</span>
+          </a>
+          <a class="nav-item active" href="photos.html">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="11" r="1.8" stroke="currentColor" stroke-width="1.6"/><path d="M21 17l-5-5-7 7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>车辆照片档案</span>
+          </a>
         </div>
+
         <div class="nav-group">
           <div class="gt">系统</div>
-          <div class="nav-item disabled"><svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>系统设置</span></div>
+          <div class="nav-item" onclick="toast('部门管理开发中…')">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M3 21V8l9-5 9 5v13M9 21v-6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>部门管理</span>
+          </div>
+          <div class="nav-item" onclick="toast('角色权限开发中…')">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11" r="2" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span>角色权限</span>
+          </div>
+          <div class="nav-item disabled">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>系统设置</span>
+          </div>
         </div>
       </nav>
+
       <div class="sb-user">
         <div class="av">A</div>
-        <div class="info"><div class="nm" id="userName">admin</div><div class="rl">超级管理员</div></div>
+        <div class="info">
+          <div class="nm" id="userName">admin</div>
+          <div class="rl">超级管理员</div>
+        </div>
         <button class="out" onclick="logout()">登出</button>
       </div>
     </aside>
@@ -240,7 +369,7 @@
         <div class="page-hero">
           <div>
             <div class="h-t">车辆照片档案</div>
-            <div class="h-s">同车相邻两次工作记录的接车 / 还车 360°环视检查照片两两对比，共 4 张，留档核验车况</div>
+            <div class="h-s">同一车辆相邻两次工作记录的 360° 环视照片档案 · 每条记录含车辆检查 / 结束里程两步各 6 张方位，两两对比 4 组共 24 张，全部在详情弹窗中核对</div>
           </div>
         </div>
 
@@ -275,7 +404,7 @@
           <div class="filter-row">
             <div class="f-item grow">
               <label>关键词</label>
-              <input id="fKeyword" class="f-input" type="text" placeholder="车牌 / 品牌型号 / 部门" />
+              <input id="fKeyword" class="f-input" type="text" placeholder="车牌 / 品牌型号 / 部门 / 记录编号 / 驾驶员" />
             </div>
             <div class="f-item">
               <label>车辆</label>
@@ -293,22 +422,65 @@
           </div>
         </div>
 
-        <div id="photoContainer" class="photo-vehicle-grid"></div>
-        <div id="emptyBox" class="empty-state" style="display:none">
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#D1D5DB" stroke-width="1.4"/><path d="M8 13l3-3 5 5" stroke="#D1D5DB" stroke-width="1.4" stroke-linejoin="round"/></svg>
-          <div class="empty-t">当前筛选条件下没有车辆</div>
-          <div class="empty-s">清空筛选条件或更换关键词</div>
+        <div class="card list-card">
+          <div class="list-head">
+            <div class="lh-t">360° 环视照片档案</div>
+            <div class="lh-meta">共 <b id="listCount">0</b> 个对比单元（相邻两次工作记录）· 每组 = 上次 / 本次 × 车辆检查 / 结束里程 = <b>4 组 × 6 方位 = 24 张</b> · 点击行或「查看」进入详情核对</div>
+          </div>
+          <div class="table-wrap">
+            <table class="dt">
+              <thead>
+                <tr>
+                  <th>车牌</th>
+                  <th>品牌型号</th>
+                  <th>上次记录</th>
+                  <th>本次记录</th>
+                  <th>接车 360° 环视</th>
+                  <th>还车 360° 环视</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="phTbody"></tbody>
+            </table>
+          </div>
+          <div id="emptyBox" class="empty-state" style="display:none;margin:18px;padding:40px 24px">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#D1D5DB" stroke-width="1.4"/><path d="M8 13l3-3 5 5" stroke="#D1D5DB" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            <div class="empty-t">当前筛选条件下没有对比单元</div>
+            <div class="empty-s">清空筛选条件或更换关键词</div>
+          </div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- 大图预览：左右两栏 接车对比 + 还车对比 -->
+  <!-- 弹层:车辆照片档案详情(相邻两次工作记录 × 24 张 360° 环视) -->
+  <div class="modal-mask" id="detailMask" onclick="closeDetail()"></div>
+  <div class="modal detail" id="phModal">
+    <div class="detail-head">
+      <div class="dh-l">
+        <div class="dh-t">车辆照片档案 · 相邻两次工作记录<span class="dh-no" id="dhNo">—</span></div>
+        <div class="dh-s" id="dhSub">—</div>
+      </div>
+      <button class="detail-close" onclick="closeDetail()" title="关闭">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+    <div class="detail-foot">
+      <div class="detail-tip" style="margin-right:auto;align-self:center">每张方位照可点击放大 · 异常方位红色标注</div>
+      <button class="m-no" onclick="closeDetail()">关 闭</button>
+    </div>
+  </div>
+
+  <!-- 360° 环视照片放大预览 -->
   <div class="lb-mask" id="lbMask" onclick="closeLb()">
     <button class="lb-close" onclick="event.stopPropagation();closeLb()" title="关闭">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
-    <div class="lb-grid" id="lbGrid"></div>
+    <div class="lb-stage" onclick="event.stopPropagation()">
+      <div class="lb-big" id="lbBig"></div>
+      <div class="lb-cap" id="lbCap"></div>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -332,7 +504,7 @@
   function toast(msg){var el=byId('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},1800);}
   function tick(){var d=new Date();var s=p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds());var el=byId('clockText');if(el)el.textContent=s;}
   setInterval(tick,1000); tick();
-  function logout(){if(!confirm('确定要登出吗?'))return;localStorage.removeItem('zp_admin_logged');location.replace('login.html');}
+  function logout() { showLogoutModal(); }
   function go(p){location.href=p;}
   setTimeout(function(){byId('preloader').classList.add('gone');},220);
 
@@ -396,36 +568,81 @@
 
   /* ============ 数据模型：PHOTO_UNITS[plate] = [unit…] ============ */
 
-  /* 占位照片生成：每张 = 320×240 SVG，含「接车/还车·360°环视」字样 + 日期 + GZ编号 + 检查结果 */
-  function photoSvg(plate, kind, idx, date, no, result, role) {
-    var cOK = '#047857', cBAD = '#B91C1C';
-    var stamp = (role === 'cur') ? '本次' : '上次';
-    var stampBg = (role === 'cur') ? '#014DB2' : '#475569';
-    var resTxt = result || '正常';
-    var resBg = (resTxt === '异常') ? '#FEE2E2' : '#D1FAE5';
-    var resFg = (resTxt === '异常') ? cBAD : cOK;
-    var resBorder = (resTxt === '异常') ? '#FECACA' : '#A7F3D0';
-    var kindTxt = (kind === 'chk') ? '接车·360°环视' : '还车·360°环视';
-    var subTxt = (kind === 'chk') ? '车辆检查步骤' : '结束里程步骤';
+  /* ============ 360° 环视照片生成 ============ */
+  /* 车辆检查步骤(接车)与结束里程步骤(还车)各自拍摄 6 方位照片：左前/正前/右前/右后/正后/左后 */
+  var POS6 = ['左前', '正前', '右前', '右后', '正后', '左后'];
+  var COL6 = ['#014DB2', '#0A5FD4', '#7C3AED', '#B45309', '#DC2626', '#047857'];
+  function stepOf(kind, t) { return kind === 'rt' ? (t.returnCheck || '正常') : (t.check || '正常'); }
+  function stepAtOf(kind, t) { return kind === 'rt' ? (t.rtAt || '—') : (t.chkAt || '—'); }
+  function stepExPos(kind, t) { return kind === 'rt' ? (t.rtExPos || '') : (t.chkExPos || ''); }
+  function stepKindTxt(kind) { return kind === 'rt' ? '还车' : '接车'; }
+  function stepSubTxt(kind) { return kind === 'rt' ? '结束里程步骤' : '车辆检查步骤'; }
+
+  /* 单张 360° 环视检查照片（400×300 模拟帧，含车牌/视角箭头/步骤/方位） */
+  function surTileSvg(plate, kind, t, i) {
+    var band = COL6[i];
+    var kindTxt = stepKindTxt(kind) + ' · 360° 环视';
     var svg =
-      "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='240' viewBox='0 0 320 240'>" +
-      "<defs><linearGradient id='g" + idx + kind + role + "' x1='0' x2='1' y1='0' y2='1'>" +
-      "<stop offset='0' stop-color='#0A5FD4' stop-opacity='.14'/>" +
-      "<stop offset='1' stop-color='#0A5FD4' stop-opacity='.04'/></linearGradient></defs>" +
-      "<rect width='320' height='240' fill='#F4F6FA'/>" +
-      "<rect width='320' height='240' fill='url(#g" + idx + kind + role + ")'/>" +
-      "<rect x='8' y='8' width='304' height='224' rx='10' fill='none' stroke='#0A5FD4' stroke-opacity='.32' stroke-dasharray='6 4'/>" +
-      "<text x='160' y='70' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='22' font-weight='800' fill='#0A1628' letter-spacing='2'>" + plate + "</text>" +
-      "<text x='160' y='100' text-anchor='middle' font-family='sans-serif' font-size='14' font-weight='700' fill='#014DB2'>" + kindTxt + "</text>" +
-      "<text x='160' y='118' text-anchor='middle' font-family='sans-serif' font-size='11' fill='#6B7280'>" + subTxt + "</text>" +
-      "<text x='160' y='148' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='11' fill='#6B7280'>" + (date||'') + "</text>" +
-      "<text x='160' y='164' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='10' fill='#8A94A6'>" + (no||'') + "</text>" +
-      "<rect x='118' y='178' width='84' height='22' rx='11' fill='" + resBg + "' stroke='" + resBorder + "'/>" +
-      "<text x='160' y='194' text-anchor='middle' font-family='sans-serif' font-size='12' font-weight='800' fill='" + resFg + "'>" + resTxt + "</text>" +
-      "<rect x='6' y='6' width='46' height='20' rx='4' fill='" + stampBg + "'/>" +
-      "<text x='29' y='20' text-anchor='middle' font-family='sans-serif' font-size='10.5' font-weight='800' fill='#fff' letter-spacing='.5'>" + stamp + "</text>" +
+      "<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'>" +
+      "<defs><linearGradient id='pg" + kind + i + "' x1='0' x2='1' y1='0' y2='1'>" +
+      "<stop offset='0' stop-color='" + band + "' stop-opacity='.14'/>" +
+      "<stop offset='1' stop-color='" + band + "' stop-opacity='.04'/></linearGradient>" +
+      "<radialGradient id='pgv" + kind + i + "' cx='.5' cy='.55' r='.55'>" +
+      "<stop offset='0' stop-color='#fff' stop-opacity='0'/>" +
+      "<stop offset='1' stop-color='" + band + "' stop-opacity='.18'/></radialGradient></defs>" +
+      "<rect width='400' height='300' fill='#F4F6FA'/>" +
+      "<rect width='400' height='300' fill='url(#pg" + kind + i + ")'/>" +
+      "<rect width='400' height='300' fill='url(#pgv" + kind + i + ")'/>" +
+      "<rect x='10' y='10' width='380' height='280' rx='12' fill='none' stroke='" + band + "' stroke-opacity='.35' stroke-dasharray='7 4'/>" +
+      "<rect x='100' y='135' width='200' height='80' rx='12' fill='#fff' stroke='" + band + "' stroke-width='2' stroke-opacity='.55'/>" +
+      "<rect x='118' y='152' width='56' height='34' rx='4' fill='" + band + "' fill-opacity='.18'/>" +
+      "<rect x='226' y='152' width='56' height='34' rx='4' fill='" + band + "' fill-opacity='.18'/>" +
+      "<circle cx='130' cy='218' r='14' fill='#0A1628' fill-opacity='.7'/>" +
+      "<circle cx='270' cy='218' r='14' fill='#0A1628' fill-opacity='.7'/>" +
+      "<path d='M200 60L200 110' stroke='" + band + "' stroke-width='3' fill='none' stroke-linecap='round'/>" +
+      "<path d='M188 100l12 14 12-14' stroke='" + band + "' stroke-width='3' fill='" + band + "' stroke-linecap='round' stroke-linejoin='round'/>" +
+      "<text x='200' y='40' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='14' font-weight='800' fill='" + band + "' letter-spacing='2'>" + plate + "</text>" +
+      "<text x='200' y='260' text-anchor='middle' font-family='sans-serif' font-size='12' font-weight='700' fill='" + band + "' letter-spacing='1'>" + kindTxt + " · " + POS6[i] + "</text>" +
+      "<text x='200' y='278' text-anchor='middle' font-family='Cascadia Code,Consolas,monospace' font-size='10' fill='#6B7280'>" + stepSubTxt(kind) + " · " + (t.date || '—') + "</text>" +
       "</svg>";
     return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+
+  /* 一步骤的 6 张方位照片网格 */
+  function sixShots(plate, kind, t) {
+    var res = stepOf(kind, t);
+    var bad = res === '异常';
+    var exPos = stepExPos(kind, t);
+    var h = '';
+    for (var i = 0; i < 6; i++) {
+      var isEx = !!(exPos && POS6[i] === exPos);
+      h += '<div class="ph-tile" onclick="openBig(\'' + esc(plate) + '\',\'' + kind + '\',\'' + esc(t.no || '') + '\',' + i + ')">' +
+        '<img src="' + surTileSvg(plate, kind, t, i) + '" alt="' + POS6[i] + '">' +
+        '<span class="st ' + (bad ? 'bad' : 'ok') + '">' + esc(res) + '</span>' +
+        '<span class="no">' + (i + 1) + '/6</span>' +
+        '<span class="pos' + (isEx ? ' bad' : '') + '">' + POS6[i] + '</span>' +
+      '</div>';
+    }
+    return h;
+  }
+
+  /* 一个照片区块：side=prev/cur × kind=chk/rt，各 6 张 */
+  function blockHtml(side, t, kind) {
+    var isCur = side === 'cur';
+    var res = stepOf(kind, t);
+    var bad = res === '异常';
+    var exPos = stepExPos(kind, t);
+    return '<div class="ph-blk ' + (isCur ? 'cur' : 'prev') + '">' +
+      '<div class="ph-hd">' +
+        '<span class="ph-tag">' + (isCur ? '本次工作记录' : '上次工作记录') + '</span>' +
+        '<span class="ph-nm">' + stepKindTxt(kind) + ' · 360° 环视检查</span>' +
+        '<span class="ph-res ' + (bad ? 'bad' : 'ok') + '">' + (bad ? '检查异常' : '检查正常') + '</span>' +
+      '</div>' +
+      '<div class="ph-info">' + stepSubTxt(kind) + ' · 6 张（' + POS6.join(' / ') + '） · <span class="gzn">' + esc(t.no || '—') + '</span> · ' + esc(t.date || '—') + ' · 提交 ' + esc(stepAtOf(kind, t)) +
+        (exPos ? ' · 异常方位 <span class="expos">' + esc(exPos) + '</span>' : '') +
+      '</div>' +
+      '<div class="ph-body"><div class="ph-shots">' + sixShots(t.plate, kind, t) + '</div></div>' +
+    '</div>';
   }
 
   /* 组装 unit 列表（按 cur.date 降序） */
@@ -462,87 +679,82 @@
       '</div>';
   }
 
-  function pairHtml(kind, prev, cur) {
-    /* kind = 'chk' or 'rt' */
-    var title = (kind === 'chk') ? '接车对比' : '还车对比';
-    var step = (kind === 'chk') ? '①' : '②';
-    var desc = (kind === 'chk') ? '车辆检查步骤·360°环视' : '结束里程步骤·360°环视';
-    var prevRes = (kind === 'chk') ? (prev.check || '正常') : (prev.returnCheck || '正常');
-    var curRes = (kind === 'chk') ? (cur.check || '正常') : (cur.returnCheck || '正常');
-    var prevTime = (kind === 'chk') ? (prev.chkAt || '—') : (prev.rtAt || '—');
-    var curTime = (kind === 'chk') ? (cur.chkAt || '—') : (cur.rtAt || '—');
-    var prevPhoto = photoSvg(prev.plate, kind, 'p', prev.date, prev.no, prevRes, 'prev');
-    var curPhoto = photoSvg(cur.plate, kind, 'c', cur.date, cur.no, curRes, 'cur');
-    return '<div class="compare-pair">' +
-      '<div class="cp-title"><span class="step">' + step + '</span>' + title + '<span class="desc">· ' + desc + '</span></div>' +
-      '<div class="cp-photos">' +
-        '<div class="cp-photo prev" onclick="event.stopPropagation();openLb(\'' + esc(cur.plate) + '\',\'' + esc(prev.no) + '\',\'' + esc(cur.no) + '\',\'' + kind + '\')">' +
-          '<img src="' + prevPhoto + '" alt="前次' + title + '"/>' +
-          '<span class="cp-stamp">上次</span>' +
-          '<span class="cp-result ' + (prevRes === '异常' ? 'bad' : 'ok') + '">' + esc(prevRes) + '</span>' +
-        '</div>' +
-        '<div class="cp-arrow">→</div>' +
-        '<div class="cp-photo cur" onclick="event.stopPropagation();openLb(\'' + esc(cur.plate) + '\',\'' + esc(prev.no) + '\',\'' + esc(cur.no) + '\',\'' + kind + '\')">' +
-          '<img src="' + curPhoto + '" alt="后次' + title + '"/>' +
-          '<span class="cp-stamp">本次</span>' +
-          '<span class="cp-result ' + (curRes === '异常' ? 'bad' : 'ok') + '">' + esc(curRes) + '</span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="cp-foot">' +
-        '<div class="when">上次 <b>' + esc(prevTime) + '</b></div>' +
-        '<div class="when">本次 <b>' + esc(curTime) + '</b></div>' +
-      '</div>' +
-      '</div>';
-  }
-
-  function renderUnit(unit) {
-    return '<div class="unit-card">' +
-      '<div class="unit-meta">' +
+  /* 详情弹窗内容：一个对比单元 = 相邻两次工作记录 × 各自两步环视 = 4 区块 × 6 张 = 24 张 */
+  function detailBodyOf(unit) {
+    return '<div class="unit-meta">' +
         unitMeta('prev', unit.prev) +
         '<div class="um-arrow">→</div>' +
         unitMeta('cur', unit.cur) +
       '</div>' +
-      '<div class="compare-group">' +
-        pairHtml('chk', unit.prev, unit.cur) +
-        pairHtml('rt', unit.prev, unit.cur) +
-      '</div>' +
+      '<div class="ph-grid">' +
+        blockHtml('prev', unit.prev, 'chk') +
+        blockHtml('cur', unit.cur, 'chk') +
+        blockHtml('prev', unit.prev, 'rt') +
+        blockHtml('cur', unit.cur, 'rt') +
       '</div>';
   }
 
-  function renderCard(plate) {
-    var v = VEH_INDEX[plate] || {};
-    var brand = v.brand || '';
-    var model = v.modelType || v.model || '';
-    var dept = v.dept || '';
-    var nameTxt = (brand || model) ? (brand + (model ? ' ' + model : '')).trim() : '车型未知 ' + esc(plate);
-    var units = PHOTO_UNITS[plate] || [];
-    var body = '';
-    if (!units.length) {
-      body = '<div class="empty-state" style="margin:18px 20px"><div class="empty-t">该车辆暂无对比单元</div><div class="empty-s">至少需要 2 条工作记录才能成对比</div></div>';
-    } else {
-      var h = '';
-      units.forEach(function(u){ h += renderUnit(u); });
-      body = '<div class="unit-list">' + h + '</div>';
-    }
-    return '<div class="veh-photo-card">' +
-      '<div class="vp-head">' +
-        '<div>' +
-          '<div class="vp-plate">' + esc(plate) + '</div>' +
-          '<div class="vp-info"><b>' + esc(nameTxt) + '</b>' + (dept ? ' · ' + esc(dept) : '') + '</div>' +
-        '</div>' +
-        '<div class="vp-count' + (units.length ? '' : ' zero') + '">' + units.length + ' 组对比</div>' +
-      '</div>' +
-      body +
-      '</div>';
+  /* 行渲染辅助 */
+  function sortedUnits() {
+    var arr = [];
+    Object.keys(PHOTO_UNITS).forEach(function(p){
+      (PHOTO_UNITS[p] || []).forEach(function(u){ u.plate = u.plate || p; arr.push(u); });
+    });
+    arr.sort(function(a, b){
+      var d = (b.cur.date || '').localeCompare(a.cur.date || '');
+      return d ? d : (b.prev.date || '').localeCompare(a.prev.date || '');
+    });
+    return arr;
+  }
+  function recCell(t, isCur) {
+    return '<div class="pr-no' + (isCur ? ' cur' : '') + '">' + esc(t.no || '—') + '</div>' +
+      '<div class="pr-d">' + esc(t.date || '—') + (t.start ? ' ' + esc(t.start) : '') + '</div>';
+  }
+  /* 单步环视结果徽章：上次/本次 + 正常|异常(方位) */
+  function rxStep(side, t, kind) {
+    var res = stepOf(kind, t);
+    var bad = res === '异常';
+    var ex = stepExPos(kind, t);
+    var label = (side === 'cur' ? '本次' : '上次') + ' ';
+    return '<span class="rx-chip ' + (bad ? 'bad' : 'ok') + '"' +
+      (bad && ex ? ' title="异常方位：' + esc(ex) + '"' : ' title="该次 ' + (bad ? '异常' : '正常') + '"') + '>' +
+      '<span class="cw">' + label + '</span>' +
+      (bad ? '异常' + (ex ? '<span class="ax">' + esc(ex) + '</span>' : '') : '正常') +
+      '</span>';
+  }
+  function rxCol(u, kind) {
+    return '<div class="rx-chips">' + rxStep('prev', u.prev, kind) + rxStep('cur', u.cur, kind) + '</div>';
+  }
+  function renderRow(u) {
+    var v = VEH_INDEX[u.plate] || {};
+    var brand = v.brand || '', model = v.modelType || v.model || '';
+    return '<tr onclick="openDetail(\'' + esc(u.plate) + '\',\'' + esc(u.prev.no || '') + '\',\'' + esc(u.cur.no || '') + '\')">' +
+      '<td><span class="cell-pl">' + esc(u.plate) + '</span></td>' +
+      '<td><span class="cell-brand">' + esc(brand || '—') + '</span><div class="cell-model">' + esc(model || '—') + '</div></td>' +
+      '<td>' + recCell(u.prev, false) + '</td>' +
+      '<td>' + recCell(u.cur, true) + '</td>' +
+      '<td>' + rxCol(u, 'chk') + '</td>' +
+      '<td>' + rxCol(u, 'rt') + '</td>' +
+      '<td><div class="op-col">' +
+        '<button class="op-btn view" onclick="event.stopPropagation();openDetail(\'' + esc(u.plate) + '\',\'' + esc(u.prev.no || '') + '\',\'' + esc(u.cur.no || '') + '\')">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.8" fill="currentColor"/></svg>查看 24 张' +
+        '</button>' +
+      '</div></td>' +
+      '</tr>';
   }
 
   function render() {
-    var plates = Object.keys(PHOTO_UNITS).filter(matchFilter).sort();
-    var cont = byId('photoContainer');
-    if (!plates.length) { cont.innerHTML=''; byId('emptyBox').style.display='block'; }
-    else {
-      var h=''; plates.forEach(function(p){ h += renderCard(p); });
-      cont.innerHTML=h; byId('emptyBox').style.display='none';
+    var list = sortedUnits().filter(matchUnit);
+    var tb = byId('phTbody');
+    byId('listCount').textContent = list.length;
+    if (!list.length) {
+      tb.innerHTML = '';
+      byId('emptyBox').style.display = 'block';
+    } else {
+      var h = '';
+      list.forEach(function(u){ h += renderRow(u); });
+      tb.innerHTML = h;
+      byId('emptyBox').style.display = 'none';
     }
   }
 
@@ -574,19 +786,18 @@
     byId('fResult').value='';
     render();
   }
-  function matchFilter(plate) {
-    var kw = (byId('fKeyword').value||'').trim().toLowerCase();
+  function matchUnit(u) {
+    var kw = (byId('fKeyword').value || '').trim().toLowerCase();
     var pf = byId('fPlate').value, rs = byId('fResult').value;
-    if (pf && plate !== pf) return false;
-    var v = VEH_INDEX[plate] || {};
-    var blob = [plate, v.brand||'', v.modelType||v.model||'', v.dept||''].join(' ').toLowerCase();
-    if (kw && blob.indexOf(kw) < 0) return false;
-    if (rs) {
-      var units = PHOTO_UNITS[plate] || [];
-      var anyAbn = units.some(function(u){return u.isAbn;});
-      if (rs === 'abn' && !anyAbn) return false;
-      if (rs === 'ok' && anyAbn) return false;
+    if (pf && u.plate !== pf) return false;
+    if (kw) {
+      var v = VEH_INDEX[u.plate] || {};
+      var blob = [u.plate, v.brand || '', v.modelType || v.model || '', v.dept || '',
+                  u.prev.no || '', u.cur.no || '', u.prev.driver || '', u.cur.driver || ''].join(' ').toLowerCase();
+      if (blob.indexOf(kw) < 0) return false;
     }
+    if (rs === 'abn' && !u.isAbn) return false;
+    if (rs === 'ok' && u.isAbn) return false;
     return true;
   }
 
@@ -606,34 +817,56 @@
     });
   })();
 
-  /* ============ 大图预览：4 张同框 ============ */
-  function findUnitByNo(plate, noA, noB) {
+  /* ============ 大图预览：单张 360° 环视照片放大 ============ */
+  function findTrip(plate, no) {
     var units = PHOTO_UNITS[plate] || [];
-    for (var i=0;i<units.length;i++) {
-      if (units[i].cur.no === noB && units[i].prev.no === noA) return units[i];
+    for (var i = 0; i < units.length; i++) {
+      if (units[i].prev.no === no) return units[i].prev;
+      if (units[i].cur.no === no) return units[i].cur;
     }
     return null;
   }
-  function openLb(plate, prevNo, curNo, kind) {
-    var unit = findUnitByNo(plate, prevNo, curNo);
-    if (!unit) { toast('未找到对应单元'); return; }
-    var pairs = [];
-    var titles = [];
-    if (kind === 'chk' || !kind) { pairs.push(pairHtml('chk', unit.prev, unit.cur)); titles.push('接车对比'); }
-    if (kind === 'rt' || !kind) { pairs.push(pairHtml('rt', unit.prev, unit.cur)); titles.push('还车对比'); }
-    var html = '';
-    if (kind === 'chk' || kind === 'rt') {
-      /* 单组放大：仍展示 4 张（左接车对比 右还车对比） */
-      html = pairHtml('chk', unit.prev, unit.cur) + pairHtml('rt', unit.prev, unit.cur);
-    } else {
-      html = pairHtml('chk', unit.prev, unit.cur) + pairHtml('rt', unit.prev, unit.cur);
+  /* 详情弹窗：一组对比 = 24 张（上次/本次 × 接车/还车 × 6 方位） */
+  function findUnit(plate, prevNo, curNo) {
+    var units = PHOTO_UNITS[plate] || [];
+    for (var i = 0; i < units.length; i++) {
+      if (units[i].prev.no === prevNo && units[i].cur.no === curNo) return units[i];
     }
-    byId('lbGrid').innerHTML = html;
+    return null;
+  }
+  function openDetail(plate, prevNo, curNo) {
+    var u = findUnit(plate, prevNo, curNo);
+    if (!u) { toast('未找到该组照片档案'); return; }
+    closeLb();
+    byId('dhNo').textContent = plate;
+    byId('dhSub').innerHTML = '上次 <b style="font-family:Cascadia Code,Consolas,monospace">' + esc(u.prev.no || '—') + '</b>（' + esc(u.prev.date || '—') + ' · ' + esc(u.prev.start || '--:--') + '） → 本次 <b style="font-family:Cascadia Code,Consolas,monospace">' + esc(u.cur.no || '—') + '</b>（' + esc(u.cur.date || '—') + ' · ' + esc(u.cur.start || '--:--') + '） · 4 组 × 6 方位 = 24 张';
+    byId('detailBody').innerHTML = detailBodyOf(u);
+    byId('detailMask').classList.add('show');
+    byId('phModal').classList.add('show');
+  }
+  function closeDetail() {
+    byId('detailMask').classList.remove('show');
+    byId('phModal').classList.remove('show');
+  }
+  function openBig(plate, kind, no, i) {
+    var t = findTrip(plate, no);
+    if (!t) { toast('未找到对应照片'); return; }
+    var res = stepOf(kind, t);
+    var bad = res === '异常';
+    byId('lbBig').innerHTML = '<img src="' + surTileSvg(plate, kind, t, i) + '" alt="' + POS6[i] + '">';
+    byId('lbCap').innerHTML =
+      '<b>' + esc(plate) + '</b> · ' + stepKindTxt(kind) + '（' + stepSubTxt(kind) + '）360° 环视 · <b>' + POS6[i] + '</b>' +
+      ' · <span style="font-family:Cascadia Code,Consolas,monospace">' + esc(t.no || '—') + '</span> · ' + esc(t.date || '—') +
+      (bad
+        ? ' · 检查结果 <span style="color:#FCA5A5;font-weight:800">异常</span> · 异常方位 ' + esc(stepExPos(kind, t) || '—')
+        : ' · 检查结果 <span style="color:#6EE7B7;font-weight:800">正常</span>');
     byId('lbMask').classList.add('show');
   }
   function closeLb() { byId('lbMask').classList.remove('show'); }
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && byId('lbMask').classList.contains('show')) closeLb();
+    if (e.key !== 'Escape') return;
+    if (byId('phModal').classList.contains('show')) { closeDetail(); return; }
+    if (byId('lbMask').classList.contains('show')) closeLb();
   });
 
   function refresh() {
@@ -664,5 +897,24 @@
   renderKPI(); render();
 
   </script>
+
+  <!-- ============ 登出确认弹窗 ============ -->
+  <div class="lgout-mask" id="lgoutMask" onclick="lgoutCancel()">
+    <div class="lgout-box" onclick="event.stopPropagation()">
+      <div class="lgout-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="lgout-t">确认退出登录？</div>
+      <div class="lgout-s">退出后需要重新登录才能继续使用管理后台</div>
+      <div class="lgout-ops">
+        <button class="lgout-no" onclick="lgoutCancel()">取 消</button>
+        <button class="lgout-yes" onclick="lgoutConfirm()">退 出</button>
+      </div>
+    </div>
+  </div>
+  <script>
+  function lgoutCancel() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); }
+  function lgoutConfirm() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); localStorage.removeItem('zp_admin_logged'); location.replace('login.html'); }
+  function showLogoutModal() { var m = document.getElementById('lgoutMask'); if (m) m.classList.add('show'); }
+  </script>
+
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>智慧新城公务用车管理平台 · 异常档案</title>
+<title>宁公车管理平台 · 异常档案</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -709,6 +709,26 @@
   }
   .warn-box .wb-d { font-size: 12px; color: #7F1D1D; line-height: 1.7; margin-top: 6px; }
     </style>
+
+  <style>
+
+  /* ============ 登出确认弹窗（自定义，规避浏览器 confirm 拦截） ============ */
+  .lgout-mask { position: fixed; inset: 0; background: rgba(10,22,40,.52); backdrop-filter: blur(3px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .22s; }
+  .lgout-mask.show { opacity: 1; pointer-events: auto; }
+  .lgout-box { width: 340px; max-width: calc(100vw - 48px); background: #fff; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,22,69,.28); padding: 30px 26px 24px; text-align: center; animation: lgIn .22s cubic-bezier(.2,.7,.3,1); }
+  @keyframes lgIn { from { transform: translateY(14px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+  .lgout-ic { width: 56px; height: 56px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .lgout-t { font-size: 16px; font-weight: 700; color: #0A1628; margin-bottom: 6px; }
+  .lgout-s { font-size: 12.5px; color: #6B7280; margin-bottom: 22px; line-height: 1.7; }
+  .lgout-ops { display: flex; gap: 12px; }
+  .lgout-ops button { flex: 1; height: 44px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: transform .12s, opacity .12s; font-family: inherit; }
+  .lgout-ops button:active { transform: scale(.98); }
+  .lgout-no { background: #F5F7FA; color: #6B7280; }
+  .lgout-no:hover { background: #EDF1F5; }
+  .lgout-yes { background: #DC2626; color: #fff; }
+  .lgout-yes:hover { background: #B91C1C; }
+  </style>
+
 </head>
 <body>
   <div class="preloader" id="preloader">
@@ -731,7 +751,7 @@
           </svg>
         </div>
         <div>
-          <div class="t1">公务用车管理</div>
+          <div class="t1">宁公车管理平台</div>
           <div class="t2">ADMIN CONSOLE</div>
         </div>
       </div>
@@ -1222,6 +1242,13 @@
       return '<span class="cc' + (exPos && p === exPos ? ' bad' : '') + '">' + p + '</span>';
     }).join('');
   }
+  /* 360° 环视检查 6 方位照片（异常方位 .shot.bad 红，其余 .shot.done 绿） */
+  function posShots(exPos) {
+    return POS.map(function (p) {
+      var bad = !!(exPos && p === exPos);
+      return '<div class="shot ' + (bad ? 'bad' : 'done') + '">' + CAM_SVG + '<span class="t">' + p + '</span></div>';
+    }).join('');
+  }
   function okLine(txt) {
     return '<div class="ok-line">' + OK_SVG + esc(txt) + '</div>';
   }
@@ -1268,12 +1295,12 @@
       '<span class="sec-lab">车辆 360° 环视检查（6 方位）</span>' +
       '<div class="circles">' + posChips(r.chkExPos) + '</div>' +
       '<div style="height:4px"></div>' +
-      srow('环视检查结果', '<span class="st sg-' + (cirAbn ? 'bad' : 'ok') + '">' + (cirAbn ? '存在异常' : '全部正常') + '</span>');
+      srow('环视检查结果', '<span class="st sg-' + (cirAbn ? 'bad' : 'ok') + '">' + (cirAbn ? '存在异常' : '全部正常') + '</span>') +
+      '<span class="sec-lab">环视照片（6 张 · 一方位一帧）</span><div class="shots">' + posShots(r.chkExPos) + '</div>';
     if (cirAbn) {
       s3 += warnBox('360° 环视检查异常',
         srow('异常方位', '<b style="color:var(--red)">' + esc(r.chkExPos) + '</b>') +
-        srow('异常分类', esc(r.chkExCat || '—')) +
-        '<span class="sec-lab">异常照片</span><div class="shots">' + shotBad(r.chkExPhotos) + '</div>',
+        srow('异常分类', esc(r.chkExCat || '—')),
         r.chkExDesc);
     }
     s3 += '<span class="sec-lab">重点检查项目（' + MAJOR + '）</span>' +
@@ -1311,12 +1338,12 @@
       '<span class="sec-lab">还车 360° 环视检查（6 方位）</span>' +
       '<div class="circles">' + posChips(r.rtExPos) + '</div>' +
       '<div style="height:4px"></div>' +
-      srow('还车检查结果', '<span class="st sg-' + (rtBad ? 'bad' : 'ok') + '">' + (rtBad ? '异常' : '正常') + '</span>');
+      srow('还车检查结果', '<span class="st sg-' + (rtBad ? 'bad' : 'ok') + '">' + (rtBad ? '异常' : '正常') + '</span>') +
+      '<span class="sec-lab">还车环视照片（6 张 · 一方位一帧）</span><div class="shots">' + posShots(r.rtExPos) + '</div>';
     if (rtBad) {
       s7 += warnBox('还车 360° 环视检查异常',
         srow('异常方位', '<b style="color:var(--red)">' + esc(r.rtExPos || '—') + '</b>') +
-        srow('异常分类', esc(r.rtExCat || '—')) +
-        '<span class="sec-lab">异常照片</span><div class="shots">' + shotBad(r.rtExPhotos || 1) + '</div>',
+        srow('异常分类', esc(r.rtExCat || '—')),
         r.rtExDesc);
     }
 
@@ -1395,11 +1422,7 @@
     toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1800);
   }
 
-  function logout() {
-    if (!confirm('确定要登出吗?')) return;
-    localStorage.removeItem('zp_admin_logged');
-    location.replace('login.html');
-  }
+  function logout() { showLogoutModal(); }
 
   /* ============ 预加载渐隐 ============ */
   setTimeout(function () { byId('preloader').classList.add('gone'); }, 220);
@@ -1409,5 +1432,24 @@
   renderKPI();
   render();
 </script>
+
+  <!-- ============ 登出确认弹窗 ============ -->
+  <div class="lgout-mask" id="lgoutMask" onclick="lgoutCancel()">
+    <div class="lgout-box" onclick="event.stopPropagation()">
+      <div class="lgout-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="lgout-t">确认退出登录？</div>
+      <div class="lgout-s">退出后需要重新登录才能继续使用管理后台</div>
+      <div class="lgout-ops">
+        <button class="lgout-no" onclick="lgoutCancel()">取 消</button>
+        <button class="lgout-yes" onclick="lgoutConfirm()">退 出</button>
+      </div>
+    </div>
+  </div>
+  <script>
+  function lgoutCancel() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); }
+  function lgoutConfirm() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); localStorage.removeItem('zp_admin_logged'); location.replace('login.html'); }
+  function showLogoutModal() { var m = document.getElementById('lgoutMask'); if (m) m.classList.add('show'); }
+  </script>
+
 </body>
 </html>
