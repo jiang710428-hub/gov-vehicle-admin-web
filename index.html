@@ -138,12 +138,6 @@
   }
   .nav-item.active .ic { color: #fff; }
   .nav-item .ic { width: 18px; height: 18px; flex-shrink: 0; opacity: .85; }
-  .nav-item .badge {
-    margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px;
-    border-radius: 9px; background: #DC2626; color: #fff;
-    font-size: 10.5px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
   .nav-item.disabled { color: rgba(255,255,255,.3); cursor: not-allowed; }
   .nav-item.disabled:hover { background: transparent; color: rgba(255,255,255,.3); }
 
@@ -696,7 +690,6 @@
         <a class="nav-item" href="dispatch.html">
           <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.6"/></svg>
           <span>派单管理</span>
-          <span class="badge" id="navBadge">0</span>
         </a>
         <a class="nav-item" href="attendance.html">
           <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3.2 2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1361,31 +1354,6 @@
       grid + polys.join('') + dots + labels;
   }
   renderTrend30();
-
-  /* ============ 派单管理导航徽章(待出车 + 进行中) ============ */
-  function renderNavBadge() {
-    var list = tryGet('zp_dispatch_list') || [];
-    var t = (function () {
-      var d = new Date();
-      return d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1) + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate();
-    })();
-    function hm(s) { var a = String(s).split(':'); return (+a[0]) * 60 + (+a[1] || 0); }
-    var d = new Date();
-    var now = d.getHours() * 60 + d.getMinutes();
-    var n = 0;
-    list.forEach(function (r) {
-      if (r.status === 'cancel') return;
-      if (r.date < t) return;
-      if (r.date > t) { n++; return; }
-      if (!r.retTime || hm(r.retTime) > now) n++;
-    });
-    var b = byId('navBadge');
-    if (!b) return;
-    b.textContent = n;
-    b.style.display = n ? 'inline-flex' : 'none';
-  }
-  renderNavBadge();
-  setInterval(renderNavBadge, 30000);
 
   /* ============ Toast ============ */
   var toastTimer = null;
