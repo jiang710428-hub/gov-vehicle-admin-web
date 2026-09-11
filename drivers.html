@@ -1275,10 +1275,20 @@
 
   <div class="toast" id="toast"></div>
 <script>
-  /* ============ 登录态校验 ============ */
-  if (localStorage.getItem('zp_admin_logged') !== '1') {
-    location.replace('login.html');
-  }
+    /* ============ 登录态校验（localStorage / sessionStorage 双备，防浏览器清理存储导致莫名跳登录）============ */
+  (function () {
+    var ls = null, ss = null, readable = false;
+    try { ls = localStorage.getItem('zp_admin_logged'); readable = true; } catch (e) {}
+    try { ss = sessionStorage.getItem('zp_admin_logged'); readable = true; } catch (e) {}
+    if (ls === '1' || ss === '1') {
+      try { localStorage.setItem('zp_admin_logged', '1'); } catch (e) {}
+      try { sessionStorage.setItem('zp_admin_logged', '1'); } catch (e) {}
+      return;
+    }
+    if (!readable) return; /* 浏览器禁用本地存储（隐私模式等）：放行，避免登录页死循环 */
+    var self = location.pathname.split('/').pop() || 'index.html';
+    location.replace('login.html?redirect=' + encodeURIComponent(self + location.search));
+  })();
   var ACCOUNT = localStorage.getItem('zp_admin_account') || 'admin';
   document.getElementById('userName').textContent = ACCOUNT;
 
@@ -1880,7 +1890,7 @@
   </div>
   <script>
   function lgoutCancel() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); }
-  function lgoutConfirm() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); localStorage.removeItem('zp_admin_logged'); location.replace('login.html'); }
+  function lgoutConfirm() { var m = document.getElementById('lgoutMask'); if (m) m.classList.remove('show'); try{localStorage.removeItem('zp_admin_logged');}catch(e){}try{sessionStorage.removeItem('zp_admin_logged');}catch(e){} location.replace('login.html'); }
   function showLogoutModal() { var m = document.getElementById('lgoutMask'); if (m) m.classList.add('show'); }
   </script>
 

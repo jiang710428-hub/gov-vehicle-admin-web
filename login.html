@@ -406,6 +406,18 @@
     t._timer = setTimeout(function () { t.classList.remove('show'); }, 1800);
   }
 
+  /* 登录后回跳：优先 ?redirect=（仅允许同目录 html 文件名，防开放重定向） */
+  function nextPage() {
+    try {
+      var m = /[?&]redirect=([^&]*)/.exec(location.search);
+      if (m) {
+        var p = decodeURIComponent(m[1]);
+        if (/^[A-Za-z0-9_-]+\.html(\?[A-Za-z0-9_=&%.-]*)?$/.test(p)) return p;
+      }
+    } catch (err) {}
+    return 'index.html';
+  }
+
   /* 登录提交 */
   function handleLogin(e) {
     e.preventDefault();
@@ -423,6 +435,7 @@
       if (account === 'admin' && pwd === '123456') {
         try {
           localStorage.setItem('zp_admin_logged', '1');
+          sessionStorage.setItem('zp_admin_logged', '1');
           localStorage.setItem('zp_admin_account', document.getElementById('account').value.trim());
           if (document.getElementById('remember').checked) {
             localStorage.setItem('zp_admin_remember', '1');
@@ -430,7 +443,7 @@
             localStorage.removeItem('zp_admin_remember');
           }
         } catch (err) {}
-        location.href = 'index.html';
+        location.replace(nextPage());
       } else {
         btn.disabled = false;
         btn.textContent = '登 录';
